@@ -1,0 +1,252 @@
+﻿using System;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
+using Pomelo.EntityFrameworkCore.MySql.Scaffolding.Internal;
+using Moon_nft_api.Models;
+
+namespace Moon_nft_api.Models;
+
+public partial class MoonNftDbContext : DbContext
+{
+
+    public static MoonNftDbContext Context { get; } = new MoonNftDbContext();
+
+    public MoonNftDbContext()
+    {
+    }
+
+    public MoonNftDbContext(DbContextOptions<MoonNftDbContext> options)
+        : base(options)
+    {
+    }
+
+    public virtual DbSet<Background> Backgrounds { get; set; }
+
+    public virtual DbSet<Model> Models { get; set; }
+
+    public virtual DbSet<Present> Presents { get; set; }
+
+    public virtual DbSet<Presentcollection> Presentcollections { get; set; }
+
+    public virtual DbSet<Symbol> Symbols { get; set; }
+
+    public virtual DbSet<Transaction> Transactions { get; set; }
+
+    public virtual DbSet<User> Users { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseMySql("server=localhost;password=root;user=root;database=moon_nft_db", Microsoft.EntityFrameworkCore.ServerVersion.Parse("9.1.0-mysql"));
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder
+            .UseCollation("utf8mb4_0900_ai_ci")
+            .HasCharSet("utf8mb4");
+
+        modelBuilder.Entity<Background>(entity =>
+        {
+            entity.HasKey(e => e.IdBackground).HasName("PRIMARY");
+
+            entity.ToTable("backgrounds");
+
+            entity.Property(e => e.IdBackground).HasColumnName("idBackground");
+            entity.Property(e => e.ColorBackground)
+                .HasMaxLength(7)
+                .HasColumnName("colorBackground");
+            entity.Property(e => e.NameBackground)
+                .HasMaxLength(45)
+                .HasColumnName("nameBackground");
+        });
+
+        modelBuilder.Entity<Model>(entity =>
+        {
+            entity.HasKey(e => e.IdModel).HasName("PRIMARY");
+
+            entity.ToTable("models");
+
+            entity.Property(e => e.IdModel).HasColumnName("idModel");
+            entity.Property(e => e.ImageModel)
+                .HasColumnType("mediumblob")
+                .HasColumnName("imageModel");
+            entity.Property(e => e.NameModel)
+                .HasMaxLength(45)
+                .HasColumnName("nameModel");
+        });
+
+        modelBuilder.Entity<Present>(entity =>
+        {
+            entity.HasKey(e => new { e.IdPresent, e.AuthoridPresent, e.OwneridPresent, e.IdPresentCollection, e.IdModel, e.IdBackground, e.IdSymbol })
+                .HasName("PRIMARY")
+                .HasAnnotation("MySql:IndexPrefixLength", new[] { 0, 0, 0, 0, 0, 0, 0 });
+
+            entity.ToTable("presents");
+
+            entity.HasIndex(e => e.IdBackground, "fkBg_idx");
+
+            entity.HasIndex(e => e.IdPresentCollection, "fkCol_idx");
+
+            entity.HasIndex(e => e.IdModel, "fkModel_idx");
+
+            entity.HasIndex(e => e.OwneridPresent, "fkOwner_idx");
+
+            entity.HasIndex(e => e.IdSymbol, "fkSymbol_idx");
+
+            entity.HasIndex(e => e.AuthoridPresent, "fkUser_idx");
+
+            entity.HasIndex(e => e.IdPresent, "idPresent_UNIQUE").IsUnique();
+
+            entity.Property(e => e.IdPresent)
+                .ValueGeneratedOnAdd()
+                .HasColumnName("idPresent");
+            entity.Property(e => e.AuthoridPresent).HasColumnName("authoridPresent");
+            entity.Property(e => e.OwneridPresent).HasColumnName("owneridPresent");
+            entity.Property(e => e.IdPresentCollection).HasColumnName("idPresentCollection");
+            entity.Property(e => e.IdModel).HasColumnName("idModel");
+            entity.Property(e => e.IdBackground).HasColumnName("idBackground");
+            entity.Property(e => e.IdSymbol).HasColumnName("idSymbol");
+            entity.Property(e => e.DateUpgradePresent).HasColumnName("dateUpgradePresent");
+            entity.Property(e => e.DescPresent)
+                .HasColumnType("text")
+                .HasColumnName("descPresent");
+            entity.Property(e => e.ImagePresent)
+                .HasColumnType("mediumblob")
+                .HasColumnName("imagePresent");
+            entity.Property(e => e.NumPresent).HasColumnName("numPresent");
+            entity.Property(e => e.UpgradePresent)
+                .HasDefaultValueSql("'0'")
+                .HasColumnName("upgradePresent");
+
+            entity.HasOne(d => d.AuthoridPresentNavigation).WithMany(p => p.PresentAuthoridPresentNavigations)
+                .HasForeignKey(d => d.AuthoridPresent)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fkAuthor");
+
+            entity.HasOne(d => d.IdBackgroundNavigation).WithMany(p => p.Presents)
+                .HasForeignKey(d => d.IdBackground)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fkBg");
+
+            entity.HasOne(d => d.IdModelNavigation).WithMany(p => p.Presents)
+                .HasForeignKey(d => d.IdModel)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fkModel");
+
+            entity.HasOne(d => d.IdPresentCollectionNavigation).WithMany(p => p.Presents)
+                .HasForeignKey(d => d.IdPresentCollection)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fkCol");
+
+            entity.HasOne(d => d.IdSymbolNavigation).WithMany(p => p.Presents)
+                .HasForeignKey(d => d.IdSymbol)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fkSymbol");
+
+            entity.HasOne(d => d.OwneridPresentNavigation).WithMany(p => p.PresentOwneridPresentNavigations)
+                .HasForeignKey(d => d.OwneridPresent)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fkOwner");
+        });
+
+        modelBuilder.Entity<Presentcollection>(entity =>
+        {
+            entity.HasKey(e => e.IdPresentCollections).HasName("PRIMARY");
+
+            entity.ToTable("presentcollections");
+
+            entity.Property(e => e.IdPresentCollections).HasColumnName("idPresentCollections");
+            entity.Property(e => e.AvailableCount).HasColumnName("availableCount");
+            entity.Property(e => e.ImagePresentcollections)
+                .HasColumnType("mediumblob")
+                .HasColumnName("imagePresentcollections");
+            entity.Property(e => e.LimitPresentCollection).HasColumnName("limitPresentCollection");
+            entity.Property(e => e.NamePresentCollection)
+                .HasMaxLength(70)
+                .HasColumnName("namePresentCollection");
+        });
+
+        modelBuilder.Entity<Symbol>(entity =>
+        {
+            entity.HasKey(e => e.IdSymbol).HasName("PRIMARY");
+
+            entity.ToTable("symbols");
+
+            entity.Property(e => e.IdSymbol).HasColumnName("idSymbol");
+            entity.Property(e => e.ImageSymbol)
+                .HasColumnType("mediumblob")
+                .HasColumnName("imageSymbol");
+            entity.Property(e => e.NameSymbol)
+                .HasMaxLength(45)
+                .HasColumnName("nameSymbol");
+        });
+
+        modelBuilder.Entity<Transaction>(entity =>
+        {
+            entity.HasKey(e => new { e.IdTransaction, e.IdSaler, e.IdBuyer, e.IdPresent })
+                .HasName("PRIMARY")
+                .HasAnnotation("MySql:IndexPrefixLength", new[] { 0, 0, 0, 0 });
+
+            entity.ToTable("transactions");
+
+            entity.HasIndex(e => e.IdBuyer, "fkBuyer_idx");
+
+            entity.HasIndex(e => e.IdPresent, "fkPresent_idx");
+
+            entity.HasIndex(e => e.IdSaler, "fk_saler_idx");
+
+            entity.Property(e => e.IdTransaction)
+                .ValueGeneratedOnAdd()
+                .HasColumnName("idTransaction");
+            entity.Property(e => e.IdSaler).HasColumnName("idSaler");
+            entity.Property(e => e.IdBuyer).HasColumnName("idBuyer");
+            entity.Property(e => e.IdPresent).HasColumnName("idPresent");
+            entity.Property(e => e.DateTransaction).HasColumnName("dateTransaction");
+            entity.Property(e => e.SumTransaction).HasColumnName("sumTransaction");
+
+            entity.HasOne(d => d.IdBuyerNavigation).WithMany(p => p.TransactionIdBuyerNavigations)
+                .HasForeignKey(d => d.IdBuyer)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fkBuyer");
+
+            entity.HasOne(d => d.IdPresentNavigation).WithMany(p => p.Transactions)
+                .HasPrincipalKey(p => p.IdPresent)
+                .HasForeignKey(d => d.IdPresent)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fkPresentTransaction");
+
+            entity.HasOne(d => d.IdSalerNavigation).WithMany(p => p.TransactionIdSalerNavigations)
+                .HasForeignKey(d => d.IdSaler)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fk_saler");
+        });
+
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.HasKey(e => e.IdUser).HasName("PRIMARY");
+
+            entity.ToTable("users");
+
+            entity.HasIndex(e => e.EmailUser, "loginUser_UNIQUE").IsUnique();
+
+            entity.Property(e => e.IdUser).HasColumnName("idUser");
+            entity.Property(e => e.DateRegUser).HasColumnName("dateRegUser");
+            entity.Property(e => e.EmailUser)
+                .HasMaxLength(60)
+                .HasColumnName("emailUser");
+            entity.Property(e => e.NicknameUser)
+                .HasMaxLength(60)
+                .HasColumnName("nicknameUser");
+            entity.Property(e => e.PasswordUser)
+                .HasMaxLength(200)
+                .HasColumnName("passwordUser");
+            entity.Property(e => e.RatingUser).HasColumnName("ratingUser");
+            entity.Property(e => e.RoleUser)
+                .HasColumnType("enum('User','Admin')")
+                .HasColumnName("roleUser");
+        });
+
+        OnModelCreatingPartial(modelBuilder);
+    }
+
+    partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+}
