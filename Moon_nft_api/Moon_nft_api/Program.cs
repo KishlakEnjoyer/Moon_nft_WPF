@@ -1,15 +1,25 @@
+using Microsoft.EntityFrameworkCore;
+using Moon_nft_api.Models;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Регистрируем DbContext
+builder.Services.AddDbContext<MoonNftDbContext>(options =>
+    options.UseMySql(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection"))
+    // ИЛИ так, если знаешь версию: new MySqlServerVersion(new Version(8, 0, 39))
+    ));
 
+// Добавляем контроллеры
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
+// Swagger (если используется)
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -17,9 +27,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();

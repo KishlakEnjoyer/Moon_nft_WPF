@@ -2,15 +2,24 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Pomelo.EntityFrameworkCore.MySql.Scaffolding.Internal;
-using Moon_nft_api.Models;
 
 namespace Moon_nft_api.Models;
 
 public partial class MoonNftDbContext : DbContext
 {
+    private static MoonNftDbContext _context;
 
-    public static MoonNftDbContext Context { get; } = new MoonNftDbContext();
-
+    public static MoonNftDbContext GetContext
+    {
+        get
+        {
+            if (_context is null)
+            {
+                _context = new MoonNftDbContext();
+            }
+            return _context;
+        }
+    }
     public MoonNftDbContext()
     {
     }
@@ -21,6 +30,8 @@ public partial class MoonNftDbContext : DbContext
     }
 
     public virtual DbSet<Background> Backgrounds { get; set; }
+
+    public virtual DbSet<Lot> Lots { get; set; }
 
     public virtual DbSet<Model> Models { get; set; }
 
@@ -36,7 +47,7 @@ public partial class MoonNftDbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseMySql("server=localhost;password=root;user=root;database=moon_nft_db", Microsoft.EntityFrameworkCore.ServerVersion.Parse("9.1.0-mysql"));
+        => optionsBuilder.UseMySql("server=localhost;user=root;password=root;database=moon_nft_db", Microsoft.EntityFrameworkCore.ServerVersion.Parse("9.1.0-mysql"));
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -59,6 +70,40 @@ public partial class MoonNftDbContext : DbContext
                 .HasColumnName("nameBackground");
         });
 
+        modelBuilder.Entity<Lot>(entity =>
+        {
+            entity.HasKey(e => new { e.IdLot, e.IdPresent, e.IdSaler })
+                .HasName("PRIMARY")
+                .HasAnnotation("MySql:IndexPrefixLength", new[] { 0, 0, 0 });
+
+            entity.ToTable("lots");
+
+            entity.HasIndex(e => e.IdPresent, "fkpresLot_idx");
+
+            entity.HasIndex(e => e.IdSaler, "fksalerLot_idx");
+
+            entity.Property(e => e.IdLot)
+                .ValueGeneratedOnAdd()
+                .HasColumnName("idLot");
+            entity.Property(e => e.IdPresent).HasColumnName("idPresent");
+            entity.Property(e => e.IdSaler).HasColumnName("idSaler");
+            entity.Property(e => e.PriceLot).HasColumnName("priceLot");
+            entity.Property(e => e.StatusLot)
+                .HasColumnType("enum('Active','Sold','Deleted')")
+                .HasColumnName("statusLot");
+
+            entity.HasOne(d => d.IdPresentNavigation).WithMany(p => p.Lots)
+                .HasPrincipalKey(p => p.IdPresent)
+                .HasForeignKey(d => d.IdPresent)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fkpresLot");
+
+            entity.HasOne(d => d.IdSalerNavigation).WithMany(p => p.Lots)
+                .HasForeignKey(d => d.IdSaler)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fksalerLot");
+        });
+
         modelBuilder.Entity<Model>(entity =>
         {
             entity.HasKey(e => e.IdModel).HasName("PRIMARY");
@@ -76,9 +121,9 @@ public partial class MoonNftDbContext : DbContext
 
         modelBuilder.Entity<Present>(entity =>
         {
-            entity.HasKey(e => new { e.IdPresent, e.AuthoridPresent, e.OwneridPresent, e.IdPresentCollection, e.IdModel, e.IdBackground, e.IdSymbol })
+            entity.HasKey(e => new { e.IdPresent, e.IdPresentCollection, e.IdModel, e.IdBackground, e.IdSymbol })
                 .HasName("PRIMARY")
-                .HasAnnotation("MySql:IndexPrefixLength", new[] { 0, 0, 0, 0, 0, 0, 0 });
+                .HasAnnotation("MySql:IndexPrefixLength", new[] { 0, 0, 0, 0, 0 });
 
             entity.ToTable("presents");
 
@@ -99,12 +144,11 @@ public partial class MoonNftDbContext : DbContext
             entity.Property(e => e.IdPresent)
                 .ValueGeneratedOnAdd()
                 .HasColumnName("idPresent");
-            entity.Property(e => e.AuthoridPresent).HasColumnName("authoridPresent");
-            entity.Property(e => e.OwneridPresent).HasColumnName("owneridPresent");
             entity.Property(e => e.IdPresentCollection).HasColumnName("idPresentCollection");
             entity.Property(e => e.IdModel).HasColumnName("idModel");
             entity.Property(e => e.IdBackground).HasColumnName("idBackground");
             entity.Property(e => e.IdSymbol).HasColumnName("idSymbol");
+            entity.Property(e => e.AuthoridPresent).HasColumnName("authoridPresent");
             entity.Property(e => e.DateUpgradePresent).HasColumnName("dateUpgradePresent");
             entity.Property(e => e.DescPresent)
                 .HasColumnType("text")
@@ -113,6 +157,7 @@ public partial class MoonNftDbContext : DbContext
                 .HasColumnType("mediumblob")
                 .HasColumnName("imagePresent");
             entity.Property(e => e.NumPresent).HasColumnName("numPresent");
+            entity.Property(e => e.OwneridPresent).HasColumnName("owneridPresent");
             entity.Property(e => e.UpgradePresent)
                 .HasDefaultValueSql("'0'")
                 .HasColumnName("upgradePresent");
@@ -163,6 +208,28 @@ public partial class MoonNftDbContext : DbContext
             entity.Property(e => e.NamePresentCollection)
                 .HasMaxLength(70)
                 .HasColumnName("namePresentCollection");
+
+            entity.HasMany(d => d.IdModels).WithMany(p => p.IdCollections)
+                .UsingEntity<Dictionary<string, object>>(
+                    "CollectionModel",
+                    r => r.HasOne<Model>().WithMany()
+                        .HasForeignKey("IdModel")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("fkModelXollection"),
+                    l => l.HasOne<Presentcollection>().WithMany()
+                        .HasForeignKey("IdCollection")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("fkCollectionModel"),
+                    j =>
+                    {
+                        j.HasKey("IdCollection", "IdModel")
+                            .HasName("PRIMARY")
+                            .HasAnnotation("MySql:IndexPrefixLength", new[] { 0, 0 });
+                        j.ToTable("collection_model");
+                        j.HasIndex(new[] { "IdModel" }, "fkModelXollection_idx");
+                        j.IndexerProperty<int>("IdCollection").HasColumnName("idCollection");
+                        j.IndexerProperty<int>("IdModel").HasColumnName("idModel");
+                    });
         });
 
         modelBuilder.Entity<Symbol>(entity =>
@@ -229,6 +296,7 @@ public partial class MoonNftDbContext : DbContext
             entity.HasIndex(e => e.EmailUser, "loginUser_UNIQUE").IsUnique();
 
             entity.Property(e => e.IdUser).HasColumnName("idUser");
+            entity.Property(e => e.BalanceUser).HasColumnName("balanceUser");
             entity.Property(e => e.DateRegUser).HasColumnName("dateRegUser");
             entity.Property(e => e.EmailUser)
                 .HasMaxLength(60)

@@ -19,6 +19,10 @@ public partial class User
 
     public float? RatingUser { get; set; }
 
+    public float? BalanceUser { get; set; }
+
+    public virtual ICollection<Lot> Lots { get; set; } = new List<Lot>();
+
     public virtual ICollection<Present> PresentAuthoridPresentNavigations { get; set; } = new List<Present>();
 
     public virtual ICollection<Present> PresentOwneridPresentNavigations { get; set; } = new List<Present>();

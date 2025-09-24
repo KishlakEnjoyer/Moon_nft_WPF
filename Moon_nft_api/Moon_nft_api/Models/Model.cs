@@ -12,4 +12,6 @@ public partial class Model
     public byte[]? ImageModel { get; set; }
 
     public virtual ICollection<Present> Presents { get; set; } = new List<Present>();
+
+    public virtual ICollection<Presentcollection> IdCollections { get; set; } = new List<Presentcollection>();
 }

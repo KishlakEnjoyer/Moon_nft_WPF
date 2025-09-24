@@ -39,6 +39,8 @@ public partial class Present
 
     public virtual Symbol IdSymbolNavigation { get; set; } = null!;
 
+    public virtual ICollection<Lot> Lots { get; set; } = new List<Lot>();
+
     public virtual User OwneridPresentNavigation { get; set; } = null!;
 
     public virtual ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();

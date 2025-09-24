@@ -1,0 +1,15 @@
+[
+  {
+    "Name": "Новый профиль",
+    "Projects": [
+      {
+        "Path": "Moon_nft_api\\Moon_nft_api.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "Moon_nft_application\\Moon_nft_application.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]
