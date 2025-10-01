@@ -2,6 +2,7 @@
 {
     public class RegisterRequest
     {
+        public long TgId { get; set; }
         public string Email { get; set; }
         public string Password { get; set; }
         public string Nickname { get; set; }
@@ -15,7 +16,7 @@
 
     public class AuthResponse
     {
-        public int Id { get; set; }
+        public long TgId { get; set; }
         public string Nickname { get; set; }
         public string Email { get; set; }
         public string Message { get; set; }

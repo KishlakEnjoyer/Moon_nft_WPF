@@ -17,9 +17,5 @@ public partial class Transaction
 
     public float SumTransaction { get; set; }
 
-    public virtual User IdBuyerNavigation { get; set; } = null!;
-
     public virtual Present IdPresentNavigation { get; set; } = null!;
-
-    public virtual User IdSalerNavigation { get; set; } = null!;
 }

@@ -18,8 +18,8 @@ namespace Moon_nft_api.Controllers
                 var currLot = MoonNftDbContext.GetContext.Lots.FirstOrDefault(l => l.IdLot == idLot);
                 if (currLot != null && currLot.StatusLot == "Active")
                 {
-                    var buyer = MoonNftDbContext.GetContext.Users.FirstOrDefault(u => u.IdUser == buyerId);
-                    var saler = MoonNftDbContext.GetContext.Users.FirstOrDefault(u => u.IdUser == currLot.IdSaler);
+                    var buyer = MoonNftDbContext.GetContext.Users.FirstOrDefault(u => u.IdTgUser == buyerId);
+                    var saler = MoonNftDbContext.GetContext.Users.FirstOrDefault(u => u.IdTgUser == currLot.IdSaler);
                     var present = MoonNftDbContext.GetContext.Presents.FirstOrDefault(p => p.IdPresent == currLot.IdPresent);
 
                     if (buyer.BalanceUser >= currLot.PriceLot)

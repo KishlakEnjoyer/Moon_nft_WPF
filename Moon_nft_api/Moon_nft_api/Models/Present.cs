@@ -29,8 +29,6 @@ public partial class Present
 
     public DateOnly? DateUpgradePresent { get; set; }
 
-    public virtual User AuthoridPresentNavigation { get; set; } = null!;
-
     public virtual Background IdBackgroundNavigation { get; set; } = null!;
 
     public virtual Model IdModelNavigation { get; set; } = null!;
@@ -40,8 +38,6 @@ public partial class Present
     public virtual Symbol IdSymbolNavigation { get; set; } = null!;
 
     public virtual ICollection<Lot> Lots { get; set; } = new List<Lot>();
-
-    public virtual User OwneridPresentNavigation { get; set; } = null!;
 
     public virtual ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
 }

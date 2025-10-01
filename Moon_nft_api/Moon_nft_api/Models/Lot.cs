@@ -16,6 +16,4 @@ public partial class Lot
     public string? StatusLot { get; set; }
 
     public virtual Present IdPresentNavigation { get; set; } = null!;
-
-    public virtual User IdSalerNavigation { get; set; } = null!;
 }

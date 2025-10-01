@@ -5,8 +5,50 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Moon_nft_application"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="Moon - Главная" Height="1440" Width="1080" WindowState="Maximized">
+    <Grid Background="#FF151515">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="80"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0">
+            <Image Source="/Resources/Images/Logo.png" 
+                   HorizontalAlignment="Left" 
+                   Margin="70 10 10 10"/>
+            <StackPanel x:Name="right_part_header" 
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center" 
+                        Orientation="Horizontal">
+                <Border CornerRadius="25" 
+                        Background="#1A1A1A"  
+                        HorizontalAlignment="Left"
+                        Padding="2">
 
+                    <StackPanel x:Name="TON_count" 
+                                Orientation="Horizontal">
+
+                        <Image Source="/Resources/Icons/ton.png" 
+                               VerticalAlignment="Center" 
+                               Height="50"
+                               Width="50"/>
+
+                        <TextBlock Text="2.03" 
+                                   Foreground="#CCCCCC" 
+                                   VerticalAlignment="Center"
+                                   FontSize="20"
+                                   Margin="10,0"/>
+
+                    </StackPanel>
+
+                </Border>
+                <TextBlock Text="Username"
+                           Foreground="WhiteSmoke"
+                           FontSize="24"
+                           VerticalAlignment="Center"
+                           Margin="50 0"/>
+            </StackPanel>
+        </Grid>
+        <Frame x:Name="main_frame"
+            Grid.Row="1"/>
     </Grid>
 </Window>

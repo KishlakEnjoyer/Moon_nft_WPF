@@ -80,8 +80,6 @@ public partial class MoonNftDbContext : DbContext
 
             entity.HasIndex(e => e.IdPresent, "fkpresLot_idx");
 
-            entity.HasIndex(e => e.IdSaler, "fksalerLot_idx");
-
             entity.Property(e => e.IdLot)
                 .ValueGeneratedOnAdd()
                 .HasColumnName("idLot");
@@ -97,11 +95,6 @@ public partial class MoonNftDbContext : DbContext
                 .HasForeignKey(d => d.IdPresent)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("fkpresLot");
-
-            entity.HasOne(d => d.IdSalerNavigation).WithMany(p => p.Lots)
-                .HasForeignKey(d => d.IdSaler)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("fksalerLot");
         });
 
         modelBuilder.Entity<Model>(entity =>
@@ -133,11 +126,7 @@ public partial class MoonNftDbContext : DbContext
 
             entity.HasIndex(e => e.IdModel, "fkModel_idx");
 
-            entity.HasIndex(e => e.OwneridPresent, "fkOwner_idx");
-
             entity.HasIndex(e => e.IdSymbol, "fkSymbol_idx");
-
-            entity.HasIndex(e => e.AuthoridPresent, "fkUser_idx");
 
             entity.HasIndex(e => e.IdPresent, "idPresent_UNIQUE").IsUnique();
 
@@ -162,11 +151,6 @@ public partial class MoonNftDbContext : DbContext
                 .HasDefaultValueSql("'0'")
                 .HasColumnName("upgradePresent");
 
-            entity.HasOne(d => d.AuthoridPresentNavigation).WithMany(p => p.PresentAuthoridPresentNavigations)
-                .HasForeignKey(d => d.AuthoridPresent)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("fkAuthor");
-
             entity.HasOne(d => d.IdBackgroundNavigation).WithMany(p => p.Presents)
                 .HasForeignKey(d => d.IdBackground)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -186,11 +170,6 @@ public partial class MoonNftDbContext : DbContext
                 .HasForeignKey(d => d.IdSymbol)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("fkSymbol");
-
-            entity.HasOne(d => d.OwneridPresentNavigation).WithMany(p => p.PresentOwneridPresentNavigations)
-                .HasForeignKey(d => d.OwneridPresent)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("fkOwner");
         });
 
         modelBuilder.Entity<Presentcollection>(entity =>
@@ -255,11 +234,7 @@ public partial class MoonNftDbContext : DbContext
 
             entity.ToTable("transactions");
 
-            entity.HasIndex(e => e.IdBuyer, "fkBuyer_idx");
-
             entity.HasIndex(e => e.IdPresent, "fkPresent_idx");
-
-            entity.HasIndex(e => e.IdSaler, "fk_saler_idx");
 
             entity.Property(e => e.IdTransaction)
                 .ValueGeneratedOnAdd()
@@ -270,33 +245,29 @@ public partial class MoonNftDbContext : DbContext
             entity.Property(e => e.DateTransaction).HasColumnName("dateTransaction");
             entity.Property(e => e.SumTransaction).HasColumnName("sumTransaction");
 
-            entity.HasOne(d => d.IdBuyerNavigation).WithMany(p => p.TransactionIdBuyerNavigations)
-                .HasForeignKey(d => d.IdBuyer)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("fkBuyer");
-
             entity.HasOne(d => d.IdPresentNavigation).WithMany(p => p.Transactions)
                 .HasPrincipalKey(p => p.IdPresent)
                 .HasForeignKey(d => d.IdPresent)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("fkPresentTransaction");
-
-            entity.HasOne(d => d.IdSalerNavigation).WithMany(p => p.TransactionIdSalerNavigations)
-                .HasForeignKey(d => d.IdSaler)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("fk_saler");
         });
 
         modelBuilder.Entity<User>(entity =>
         {
-            entity.HasKey(e => e.IdUser).HasName("PRIMARY");
+            entity.HasKey(e => e.IdTgUser).HasName("PRIMARY");
 
             entity.ToTable("users");
 
+            entity.HasIndex(e => e.IdTgUser, "idUser_UNIQUE").IsUnique();
+
             entity.HasIndex(e => e.EmailUser, "loginUser_UNIQUE").IsUnique();
 
-            entity.Property(e => e.IdUser).HasColumnName("idUser");
-            entity.Property(e => e.BalanceUser).HasColumnName("balanceUser");
+            entity.Property(e => e.IdTgUser)
+                .ValueGeneratedNever()
+                .HasColumnName("idTgUser");
+            entity.Property(e => e.BalanceUser)
+                .HasDefaultValueSql("'0'")
+                .HasColumnName("balanceUser");
             entity.Property(e => e.DateRegUser).HasColumnName("dateRegUser");
             entity.Property(e => e.EmailUser)
                 .HasMaxLength(60)
@@ -307,8 +278,11 @@ public partial class MoonNftDbContext : DbContext
             entity.Property(e => e.PasswordUser)
                 .HasMaxLength(200)
                 .HasColumnName("passwordUser");
-            entity.Property(e => e.RatingUser).HasColumnName("ratingUser");
+            entity.Property(e => e.RatingUser)
+                .HasDefaultValueSql("'5'")
+                .HasColumnName("ratingUser");
             entity.Property(e => e.RoleUser)
+                .HasDefaultValueSql("'User'")
                 .HasColumnType("enum('User','Admin')")
                 .HasColumnName("roleUser");
         });

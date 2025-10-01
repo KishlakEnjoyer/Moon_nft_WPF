@@ -16,14 +16,14 @@ namespace Moon_nft_api.Controllers
         [HttpPost("topup")]
         public async Task<IActionResult> TopUpBalance([FromBody] TopUpRequest request)
         {
-            var currUser = MoonNftDbContext.GetContext.Users.FirstOrDefault(u => u.EmailUser == request.Email);
+            var currUser = MoonNftDbContext.GetContext.Users.FirstOrDefault(u => u.IdTgUser == request.TgId);
             if (currUser is not null)
             {
                 currUser.BalanceUser += request.Amount;
                 MoonNftDbContext.GetContext.SaveChanges();
                 return Ok($"Пополнение прошло успешно на {request.Amount}");
             }
-            return BadRequest($"Не удалось пополнить баланс пользователю {request.Email}");
+            return BadRequest($"Не удалось пополнить баланс пользователю {currUser.NicknameUser}");
         }
     }
 

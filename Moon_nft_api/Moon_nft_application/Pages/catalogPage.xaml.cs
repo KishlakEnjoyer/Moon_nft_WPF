@@ -1,4 +1,8 @@
-﻿using System.Text;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -8,19 +12,19 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using Moon_nft_application.Pages;
 
-namespace Moon_nft_application
+namespace Moon_nft_application.Pages
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Логика взаимодействия для catalogPage.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class catalogPage : Page
     {
-        public MainWindow()
+        public catalogPage()
         {
             InitializeComponent();
-            main_frame.NavigationService.Navigate(new catalogPage());
         }
+
+        
     }
 }

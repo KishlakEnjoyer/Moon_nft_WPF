@@ -2,7 +2,7 @@
 {
     public class TopUpRequest
     {
-        public string Email { get; set; } = string.Empty;
+        public long TgId { get; set; }
         public float Amount { get; set; }
     }
 }

@@ -5,7 +5,7 @@ namespace Moon_nft_api.Models;
 
 public partial class User
 {
-    public int IdUser { get; set; }
+    public long IdTgUser { get; set; }
 
     public string? EmailUser { get; set; }
 
@@ -20,14 +20,4 @@ public partial class User
     public float? RatingUser { get; set; }
 
     public float? BalanceUser { get; set; }
-
-    public virtual ICollection<Lot> Lots { get; set; } = new List<Lot>();
-
-    public virtual ICollection<Present> PresentAuthoridPresentNavigations { get; set; } = new List<Present>();
-
-    public virtual ICollection<Present> PresentOwneridPresentNavigations { get; set; } = new List<Present>();
-
-    public virtual ICollection<Transaction> TransactionIdBuyerNavigations { get; set; } = new List<Transaction>();
-
-    public virtual ICollection<Transaction> TransactionIdSalerNavigations { get; set; } = new List<Transaction>();
 }

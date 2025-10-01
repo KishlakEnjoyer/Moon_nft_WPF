@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Moon_nft_api.Models;
+using Moon_nft_api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +18,7 @@ builder.Services.AddControllers();
 // Swagger (если используется)
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 var app = builder.Build();
 

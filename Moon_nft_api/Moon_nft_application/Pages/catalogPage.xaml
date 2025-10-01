@@ -1,0 +1,77 @@
+﻿<Page x:Class="Moon_nft_application.Pages.catalogPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:Moon_nft_application.Pages"
+      xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+      mc:Ignorable="d" 
+      d:DesignHeight="1080" d:DesignWidth="1360"
+      Title="catalogPage">
+
+    <Grid Margin="0 10 0 0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="80"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal"
+                Margin="70 0">
+            <Border CornerRadius="30" 
+                Background="#FF1A1A1A"
+                Padding="10 0">
+                <StackPanel Orientation="Horizontal">
+                    <Image Source="/Resources/Icons/Search.png" 
+                           Height="30"
+                           Width="30"
+                           Margin="10 10 0 0"/>
+                    <TextBox x:Name="searchBar"
+                         md:HintAssist.Hint="Искать подарки" Style="{StaticResource MaterialDesignFilledTextBox}"
+                         Background="Transparent"
+                         BorderBrush="Transparent"
+                         VerticalAlignment="Center"
+                         Foreground="#FF4F4F4F"
+                         Width="250"
+                         FontSize="20"
+                         Margin="10 0" 
+                         SelectionBrush="#FFACACAC"/>
+                </StackPanel>
+            </Border>
+
+            <Border CornerRadius="30" 
+    Background="#FF1A1A1A"
+    Padding="0">
+                <ComboBox x:Name="filterVid"
+                          Width="200"
+                          Foreground="WhiteSmoke"
+                          Margin="10 0"/>
+            </Border>
+
+            <Border CornerRadius="30" 
+Background="#FF1A1A1A"
+Padding="0">
+                <ComboBox x:Name="filterModel"
+                      Width="200"
+                      Foreground="WhiteSmoke"
+                          Margin="10 0"/>
+            </Border>
+
+            <Border CornerRadius="30" 
+Background="#FF1A1A1A"
+Padding="0">
+                <ComboBox x:Name="filterBG"
+                      Width="200"
+                      Foreground="WhiteSmoke"
+                          Margin="10 0"/>
+            </Border>
+
+            <Border CornerRadius="30" 
+Background="#FF1A1A1A"
+Padding="0">
+                <ComboBox x:Name="filterSymbol"
+                      Width="200"
+                      Foreground="WhiteSmoke"
+                          Margin="10 0"/>
+            </Border>
+        </StackPanel>
+    </Grid>
+</Page>
