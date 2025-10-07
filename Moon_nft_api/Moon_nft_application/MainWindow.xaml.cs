@@ -9,6 +9,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Moon_nft_application.Pages;
+using Moon_nft_application.Scripts;
 
 namespace Moon_nft_application
 {
@@ -20,7 +21,7 @@ namespace Moon_nft_application
         public MainWindow()
         {
             InitializeComponent();
-            main_frame.NavigationService.Navigate(new catalogPage());
+            Go.to(new catalogPage());
         }
     }
 }

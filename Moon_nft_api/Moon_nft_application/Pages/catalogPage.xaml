@@ -6,72 +6,153 @@
       xmlns:local="clr-namespace:Moon_nft_application.Pages"
       xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
       mc:Ignorable="d" 
-      d:DesignHeight="1080" d:DesignWidth="1360"
-      Title="catalogPage">
+      d:DesignHeight="1400" d:DesignWidth="1080"
+      Title="catalogPage" Loaded="Page_Loaded">
 
-    <Grid Margin="0 10 0 0">
+    <Grid Margin="0 10 0 0" ShowGridLines="True">
         <Grid.RowDefinitions>
             <RowDefinition Height="80"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <StackPanel Orientation="Horizontal"
-                Margin="70 0">
-            <Border CornerRadius="30" 
-                Background="#FF1A1A1A"
-                Padding="10 0">
-                <StackPanel Orientation="Horizontal">
-                    <Image Source="/Resources/Icons/Search.png" 
-                           Height="30"
-                           Width="30"
-                           Margin="10 10 0 0"/>
-                    <TextBox x:Name="searchBar"
-                         md:HintAssist.Hint="Искать подарки" Style="{StaticResource MaterialDesignFilledTextBox}"
-                         Background="Transparent"
-                         BorderBrush="Transparent"
-                         VerticalAlignment="Center"
-                         Foreground="#FF4F4F4F"
-                         Width="250"
-                         FontSize="20"
-                         Margin="10 0" 
-                         SelectionBrush="#FFACACAC"/>
-                </StackPanel>
-            </Border>
-
-            <Border CornerRadius="30" 
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="20"/>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="20"/>
+        </Grid.ColumnDefinitions>
+        <Border CornerRadius="30" 
     Background="#FF1A1A1A"
-    Padding="0">
-                <ComboBox x:Name="filterVid"
-                          Width="200"
-                          Foreground="WhiteSmoke"
-                          Margin="10 0"/>
-            </Border>
-
-            <Border CornerRadius="30" 
+    Padding="10 0" Grid.Column="1" Margin="10">
+            <StackPanel Orientation="Horizontal">
+                <Image Source="/Resources/Icons/Search.png" 
+               Height="30"
+               Width="30"/>
+                <TextBox x:Name="searchBar"
+             md:HintAssist.Hint="Искать подарки" Style="{StaticResource MaterialDesignFilledTextBox}"
+             Background="Transparent"
+             BorderBrush="Transparent"
+             VerticalAlignment="Center"
+             Foreground="#FF4F4F4F"
+             Width="250"
+             FontSize="20"
+             Margin="10 0" 
+             SelectionBrush="#FFACACAC"/>
+            </StackPanel>
+        </Border>
+        <Border CornerRadius="30" 
 Background="#FF1A1A1A"
-Padding="0">
-                <ComboBox x:Name="filterModel"
+Padding="0" HorizontalAlignment="Stretch" Grid.Column="2" Margin="10">
+            <ComboBox x:Name="filterVid"
+          md:HintAssist.Hint="Вид"
+          Width="200"
+          FontSize="20"
+          Foreground="White"
+          Background="#FF1A1A1A"
+          Margin="10 0"
+          DisplayMemberPath="NamePresentCollection" SelectionChanged="filterVid_SelectionChanged">
+                <ComboBox.ItemContainerStyle>
+                    <Style TargetType="{x:Type ComboBoxItem}">
+                        <Setter Property="Background" Value="#FF1A1A1A"/>
+                        <Setter Property="Foreground" Value="White"/>
+                        <Setter Property="Padding" Value="8,4"/>
+                        <!-- Опционально: убрать выделение при наведении -->
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="{x:Type ComboBoxItem}">
+                                    <Border Background="{TemplateBinding Background}" 
+                                Padding="{TemplateBinding Padding}">
+                                        <ContentPresenter />
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="Gray"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="False">
+                                <Setter Property="Background" Value="#FF1A1A1A"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </ComboBox.ItemContainerStyle>
+            </ComboBox>
+        </Border>
+
+
+
+
+
+        <Border CornerRadius="30" 
+Background="#FF1A1A1A"
+Padding="0" HorizontalAlignment="Stretch"
+                Grid.Column="3"
+                Margin="10">
+            <ComboBox x:Name="filterModel"
                       Width="200"
+                      md:HintAssist.Hint="Модель"  
+                      FontSize="20"    
                       Foreground="WhiteSmoke"
-                          Margin="10 0"/>
+                          Margin="10 0"
+                           DisplayMemberPath="NameModel">
+                <ComboBox.ItemContainerStyle>
+                    <Style TargetType="{x:Type ComboBoxItem}">
+                        <Setter Property="Background" Value="#FF1A1A1A"/>
+                        <Setter Property="Foreground" Value="White"/>
+                        <Setter Property="Padding" Value="8,4"/>
+                        <!-- Опционально: убрать выделение при наведении -->
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="{x:Type ComboBoxItem}">
+                                    <Border Background="{TemplateBinding Background}" 
+                Padding="{TemplateBinding Padding}">
+                                        <ContentPresenter />
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="Gray"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="False">
+                                <Setter Property="Background" Value="#FF1A1A1A"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </ComboBox.ItemContainerStyle>
+            </ComboBox>
             </Border>
 
             <Border CornerRadius="30" 
 Background="#FF1A1A1A"
-Padding="0">
+Padding="0" HorizontalAlignment="Stretch"
+                    Grid.Column="4"
+                    Margin="10">
                 <ComboBox x:Name="filterBG"
                       Width="200"
+                      md:HintAssist.Hint="Фон"     
                       Foreground="WhiteSmoke"
-                          Margin="10 0"/>
+                          Margin="10 0"
+                          FontSize="20"
+                          />
             </Border>
 
             <Border CornerRadius="30" 
 Background="#FF1A1A1A"
-Padding="0">
+Padding="0" HorizontalAlignment="Stretch"
+                    Grid.Column="5"
+                    Margin="10">
                 <ComboBox x:Name="filterSymbol"
-                      Width="200"
+                      MinWidth="200"
+                      md:HintAssist.Hint="Узор"    
                       Foreground="WhiteSmoke"
-                          Margin="10 0"/>
+                          Margin="10 0"
+                          FontSize="20"
+                          />
             </Border>
-        </StackPanel>
     </Grid>
 </Page>
