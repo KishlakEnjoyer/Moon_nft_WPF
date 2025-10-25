@@ -5,13 +5,14 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Moon_nft_application"
         mc:Ignorable="d"
-        Title="Moon - Главная" Height="1440" Width="1080" WindowState="Maximized">
+        Title="Moon - Главная" Height="1440" Width="1080" WindowState="Maximized"
+        Icon="./Resources/Icons/Logo (1).png">
     <Grid Background="#FF151515">
         <Grid.RowDefinitions>
             <RowDefinition Height="80"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <Grid Grid.Row="0">
+        <Grid Grid.Row="0" MouseLeftButtonDown="Grid_MouseLeftButtonDown">
             <Image Source="/Resources/Images/Logo.png" 
                    HorizontalAlignment="Left" 
                    Margin="70 10 10 10"/>
@@ -22,7 +23,7 @@
                 <Border CornerRadius="25" 
                         Background="#1A1A1A"  
                         HorizontalAlignment="Left"
-                        Padding="2">
+                        Padding="2" Visibility="Collapsed">
 
                     <StackPanel x:Name="TON_count" 
                                 Orientation="Horizontal">
@@ -41,14 +42,32 @@
                     </StackPanel>
 
                 </Border>
-                <TextBlock Text="Username"
+                <TextBlock x:Name="profileTB"
+                           Text="Войти"
                            Foreground="WhiteSmoke"
+                           FontFamily="{StaticResource AgdasimaReg}"
                            FontSize="24"
                            VerticalAlignment="Center"
-                           Margin="50 0"/>
+                           Margin="50 0"
+                           MouseLeftButtonDown="LoginButton_Click"
+                           Cursor="Hand">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Foreground" Value="Aqua"/>
+                                </Trigger>
+                                <Trigger Property="IsMouseOver" Value="False">
+                                    <Setter Property="Foreground" Value="White"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
             </StackPanel>
         </Grid>
         <Frame x:Name="main_frame"
-            Grid.Row="1"/>
+            Grid.Row="1"
+            NavigationUIVisibility="Hidden"/>
     </Grid>
 </Window>

@@ -3,6 +3,7 @@ using Moon_nft_api.Models;
 using Moon_nft_api.Services;
 using System.Text.Json.Serialization;
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore.SqlServer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +14,11 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
     });
 
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+});
+
 // Регистрируем DbContext
 builder.Services.AddDbContext<MoonNftDbContext>(options =>
     options.UseMySql(
@@ -20,6 +26,8 @@ builder.Services.AddDbContext<MoonNftDbContext>(options =>
         ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection"))
     // ИЛИ так, если знаешь версию: new MySqlServerVersion(new Version(8, 0, 39))
     ));
+
+
 
 // Добавляем контроллеры
 builder.Services.AddControllers();

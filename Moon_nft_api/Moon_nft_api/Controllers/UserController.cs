@@ -3,8 +3,8 @@ using Moon_nft_api.Models;
 using BCrypt.Net;
 using Microsoft.EntityFrameworkCore;
 using Moon_nft_api.Services;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+using Moon_nft_api.DTOs;
+using Moon_nft_api.EmailModels;
 
 namespace Moon_nft_api.Controllers
 {
@@ -13,11 +13,58 @@ namespace Moon_nft_api.Controllers
     public class UserController : ControllerBase
     {
 
-        private readonly IEmailService _emailService; // ← внедряем сервис
+        private readonly IEmailService _emailService;
+        private readonly MoonNftDbContext _context;
 
-        public UserController(IEmailService emailService) // ← конструктор
+        public UserController(IEmailService emailService, MoonNftDbContext context) 
         {
             _emailService = emailService;
+            _context = context;
+
+        }
+
+        [HttpGet("GetPresentsForUser")]
+        public async Task<ActionResult<List<Present>>> GetPresentsForUser([FromQuery] long usertgid, int limit = 50)
+        {
+            User? currUser = MoonNftDbContext.GetContext.Users.FirstOrDefault(u => u.IdTgUser == usertgid);
+            var presents = MoonNftDbContext.GetContext.Presents
+                                    .Where(p => p.OwneridPresent == currUser.IdUser)
+                                    .Include(p => p.IdPresentCollectionNavigation)
+                                    .Include(p => p.IdModelNavigation)
+                                    .Include(p => p.IdSymbolNavigation)
+                                    .Include(p => p.IdBackgroundNavigation)
+                                    .Select(p => new PresentDto
+                                    {
+                                        DisplayNum = p.displayNum,
+                                        CollectionName = p.IdPresentCollectionNavigation.NamePresentCollection,
+                                        ModelName = p.IdModelNavigation.NameModel,
+                                        BackgroundName = p.IdBackgroundNavigation.NameBackground,
+                                        SymbolName = p.IdSymbolNavigation.NameSymbol,
+                                        DescPresent = p.DescPresent,
+                                        DateUpgradePresent = (DateOnly)p.DateUpgradePresent
+                                    })
+                                    .ToList();
+
+            return Ok(presents);
+        }
+
+        [HttpGet("GetFullProfileInfo")]
+        public async Task<ActionResult<User>> GetFullProfileInfo(int userId)
+        {
+            User? user = MoonNftDbContext.GetContext.Users
+                                         .Include(u => u.TransactionIdBuyerNavigations)
+                                         .Include(u => u.TransactionIdSalerNavigations)
+                                         .Include(u => u.PresentOwneridPresentNavigations)
+                                         .ThenInclude(u => u.IdPresentCollectionNavigation)
+                                         .Include(u => u.IdLots)
+                                         .Include(u => u.PresentAuthoridPresentNavigations)
+                                         .ThenInclude(u => u.IdPresentCollectionNavigation)
+                                         .FirstOrDefault(u => u.IdUser == userId);
+            if (user is null)
+            {
+                return BadRequest("Такой пользователь не найден!");
+            }
+            return Ok(user);
         }
 
         [HttpGet("profile")]
@@ -30,6 +77,7 @@ namespace Moon_nft_api.Controllers
                 .Where(u => u.IdTgUser == tgId)
                 .Select(u => new ProfileResponseDto
                 {
+                    UserId = u.IdUser,
                     Nickname = u.NicknameUser,
                     Email = u.EmailUser,
                     Balance = u.BalanceUser
@@ -41,6 +89,8 @@ namespace Moon_nft_api.Controllers
 
             return Ok(user);
         }
+
+
 
         [HttpPost("register")]
         public IActionResult Register([FromBody] RegisterRequest req)
@@ -68,7 +118,7 @@ namespace Moon_nft_api.Controllers
 
             return Ok(new AuthResponse
             {
-                TgId = newUser.IdTgUser,
+                TgId = (long)newUser.IdTgUser,
                 Nickname = newUser.NicknameUser,
                 Email = newUser.EmailUser,
                 Message = "Регистрация прошла успешно!"
@@ -78,7 +128,7 @@ namespace Moon_nft_api.Controllers
         [HttpPost("login")]
         public IActionResult Login([FromBody] LoginRequest req)
         {
-            var user = MoonNftDbContext.GetContext.Users.FirstOrDefault(u => u.EmailUser == req.Email);
+            var user = _context.Users.FirstOrDefault(u => u.EmailUser == req.Email);
             if (user == null)
                 return Unauthorized(new { message = "Неверная почта или пароль." });
 
@@ -88,7 +138,8 @@ namespace Moon_nft_api.Controllers
 
             return Ok(new AuthResponse
             {
-                TgId = user.IdTgUser,
+                TgId = (long)user.IdTgUser,
+                UserId = user.IdUser,
                 Nickname = user.NicknameUser,
                 Email = user.EmailUser,
                 Message = "Вы вошли!"
@@ -144,51 +195,6 @@ namespace Moon_nft_api.Controllers
             return BadRequest("Неверный или просроченный код.");
         }
 
-        // Вспомогательные DTO
-        public class SendVerificationRequest
-        {
-            public string Email { get; set; } = string.Empty;
-        }
-
-        public class VerifyCodeRequest
-        {
-            public string TempId { get; set; } = string.Empty;
-            public string Code { get; set; } = string.Empty;
-        }
-
-        public static class EmailVerificationService
-        {
-            private static readonly Dictionary<string, (string Code, string Email, DateTime Expiry)> _codes = new();
-
-            public static void StoreCode(string tempId, string code, string email, TimeSpan ttl)
-            {
-                _codes[tempId] = (code, email, DateTime.UtcNow + ttl);
-            }
-
-            public static bool TryGetEmailByCode(string tempId, string inputCode, out string email)
-            {
-                email = string.Empty;
-
-                if (!_codes.TryGetValue(tempId, out var data))
-                    return false;
-
-                if (DateTime.UtcNow > data.Expiry)
-                {
-                    _codes.Remove(tempId);
-                    return false;
-                }
-
-                if (data.Code == inputCode)
-                {
-                    email = data.Email;
-                    _codes.Remove(tempId); // одноразовый
-                    return true;
-                }
-
-                return false;
-            }
-        }
-
         private static bool IsValidEmail(string email)
         {
             try
@@ -201,5 +207,7 @@ namespace Moon_nft_api.Controllers
                 return false;
             }
         }
+
+
     }
 }

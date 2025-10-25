@@ -17,5 +17,7 @@ public partial class Lot
 
     public virtual Present IdPresentNavigation { get; set; } = null!;
 
-    public virtual ICollection<User> IdTgUsers { get; set; } = new List<User>();
+    public virtual User IdSalerNavigation { get; set; } = null!;
+
+    public virtual ICollection<User> IdUsers { get; set; } = new List<User>();
 }

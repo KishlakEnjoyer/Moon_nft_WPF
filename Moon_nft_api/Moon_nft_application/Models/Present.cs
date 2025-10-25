@@ -13,11 +13,11 @@ public partial class Present
 
     public int IdPresentCollection { get; set; }
 
-    public int IdModel { get; set; }
+    public int? IdModel { get; set; }
 
-    public int IdBackground { get; set; }
+    public int? IdBackground { get; set; }
 
-    public int IdSymbol { get; set; }
+    public int? IdSymbol { get; set; }
 
     public int NumPresent { get; set; }
 
@@ -29,15 +29,22 @@ public partial class Present
 
     public DateOnly? DateUpgradePresent { get; set; }
 
-    public virtual Background IdBackgroundNavigation { get; set; } = null!;
+    public virtual User AuthoridPresentNavigation { get; set; } = null!;
 
-    public virtual Model IdModelNavigation { get; set; } = null!;
+    public virtual Background? IdBackgroundNavigation { get; set; }
+
+    public virtual Model? IdModelNavigation { get; set; }
 
     public virtual Presentcollection IdPresentCollectionNavigation { get; set; } = null!;
 
-    public virtual Symbol IdSymbolNavigation { get; set; } = null!;
+    public virtual Symbol? IdSymbolNavigation { get; set; }
 
     public virtual Lot? Lot { get; set; }
 
+    public virtual User OwneridPresentNavigation { get; set; } = null!;
+
     public virtual ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
+
+    public string displayNum => ($"# {NumPresent} / {IdPresentCollectionNavigation.LimitPresentCollection}");
+
 }

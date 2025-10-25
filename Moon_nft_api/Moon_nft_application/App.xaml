@@ -19,6 +19,9 @@
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.DataGrid.xaml" />
 
             </ResourceDictionary.MergedDictionaries>
+
+            <FontFamily x:Key="AgdasimaReg">./Resources/Fonts/#Agdasima</FontFamily>
+            <FontFamily x:Key="AgdasimaBold">./Resources/Fonts/#Agdasima-Bold.ttf</FontFamily>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

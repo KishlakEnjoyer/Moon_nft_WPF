@@ -1,4 +1,4 @@
-﻿namespace Moon_nft_api.Models
+﻿namespace Moon_nft_application.Models
 {
     public class RegisterRequest
     {

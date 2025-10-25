@@ -7,15 +7,33 @@
     </ApplicationDefinition>
   </ItemGroup>
   <ItemGroup>
+    <Compile Update="Elements\AuthWindow.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Elements\PresentCard.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Pages\catalogPage.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Pages\ProfilePage.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Page Update="Elements\AuthWindow.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Elements\PresentCard.xaml">
+      <SubType>Designer</SubType>
+    </Page>
     <Page Update="MainWindow.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Pages\catalogPage.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Pages\ProfilePage.xaml">
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>

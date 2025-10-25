@@ -7,9 +7,9 @@ public partial class Transaction
 {
     public int IdTransaction { get; set; }
 
-    public long IdSaler { get; set; }
+    public int IdSaler { get; set; }
 
-    public long IdBuyer { get; set; }
+    public int IdBuyer { get; set; }
 
     public int IdPresent { get; set; }
 
