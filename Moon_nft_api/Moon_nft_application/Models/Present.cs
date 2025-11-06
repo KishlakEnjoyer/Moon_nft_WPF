@@ -44,7 +44,5 @@ public partial class Present
     public virtual User OwneridPresentNavigation { get; set; } = null!;
 
     public virtual ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
-
-    public string displayNum => ($"# {NumPresent} / {IdPresentCollectionNavigation.LimitPresentCollection}");
-
+    public string displayNum => $"#{NumPresent} / {IdPresentCollectionNavigation.LimitPresentCollection}";
 }

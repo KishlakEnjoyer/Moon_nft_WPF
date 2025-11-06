@@ -11,7 +11,10 @@
   <ItemGroup>
     <None Remove="Resources\Fonts\Agdasima-Bold.ttf" />
     <None Remove="Resources\Fonts\Agdasima-Regular.ttf" />
+    <None Remove="Resources\Icons\image 18.png" />
     <None Remove="Resources\Icons\Logo %281%29.png" />
+    <None Remove="Resources\Icons\logout.png" />
+    <None Remove="Resources\Icons\Plus.png" />
     <None Remove="Resources\Icons\Search.png" />
     <None Remove="Resources\Icons\Shopping cart.png" />
     <None Remove="Resources\Icons\ton.png" />
@@ -41,7 +44,16 @@
 	  <Resource Include="Resources\Fonts\Agdasima-Regular.ttf">
 	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
 	  </Resource>
+	  <Resource Include="Resources\Icons\image 18.png">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </Resource>
 	  <Resource Include="Resources\Icons\Logo (1).png">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </Resource>
+	  <Resource Include="Resources\Icons\logout.png">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </Resource>
+	  <Resource Include="Resources\Icons\Plus.png">
 	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
 	  </Resource>
 	  <Resource Include="Resources\Icons\Search.png">

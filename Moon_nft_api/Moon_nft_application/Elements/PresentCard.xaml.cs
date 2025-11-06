@@ -27,16 +27,7 @@ namespace Moon_nft_application.Elements
         public PresentCard()
         {
             InitializeComponent();
-            if (Application.Current.MainWindow is MainWindow main)
-            {
-                if (DataContext is Lot lot)
-                {
-                    if(lot.IdUsers.FirstOrDefault(u => u.IdUser == main.currentUserId) is null)
-                    {
-
-                    }
-                }
-            }
+            
         }
 
         private async void CartButton_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -61,7 +52,7 @@ namespace Moon_nft_application.Elements
             }
 
             using var client = new HttpClient();
-            client.BaseAddress = new Uri("http://localhost:5192/");
+            client.BaseAddress = new Uri("http://localhost:3000/");
             HttpResponseMessage response = null;
 
             try
@@ -77,7 +68,7 @@ namespace Moon_nft_application.Elements
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка загрузки данных: {response.Content}");
+                MessageBox.Show($"Ошибка загрузки данных: {ex.Message}");
             }
         }
 
@@ -111,12 +102,19 @@ namespace Moon_nft_application.Elements
             if (result == MessageBoxResult.Yes)
             {
                 using var client = new HttpClient();
-                client.BaseAddress = new Uri("http://localhost:5192/");
+                client.BaseAddress = new Uri("http://localhost:3000/");
                 HttpResponseMessage response = null;
 
                 try
                 {
                     response = await client.PutAsync($"api/NFT/PurchasePresent?idLot={lotId}&buyerId={buyerId}", null);
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        var errorContent = await response.Content.ReadAsStringAsync();
+                        MessageBox.Show(errorContent, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        return; 
+                    }
+
                     response.EnsureSuccessStatusCode();
 
                     var json = await response.Content.ReadAsStringAsync();
@@ -132,7 +130,7 @@ namespace Moon_nft_application.Elements
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Ошибка загрузки данных: {response.Content}");
+                    MessageBox.Show($"Ошибка загрузки данных: {ex.Message}");
                 }
             }
         }

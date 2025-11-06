@@ -15,6 +15,10 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Moon_nft_application.Scripts;
+using Moon_nft_api.Services;
+using Moon_nft_application.Elements;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace Moon_nft_application.Pages
 {
@@ -42,7 +46,7 @@ namespace Moon_nft_application.Pages
         public async Task<User> GetFullInfoOfUser(int currentUserId)
         {
             using var client = new HttpClient();
-            client.BaseAddress = new Uri("http://localhost:5192/");
+            client.BaseAddress = new Uri("http://localhost:3000/");
 
             try
             {
@@ -64,6 +68,55 @@ namespace Moon_nft_application.Pages
             }
         }
 
-        
+        private void Border_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+
+        }
+
+        private void TextBlock_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            TelegramService.OpenTelegramBot();
+        }
+
+        private void historyBtn_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+
+        }
+
+        private void cartBtn_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+
+        }
+
+        private void adminBtn_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+
+        }
+
+        private void logoutBtn_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (Application.Current.MainWindow is MainWindow main)
+            {
+                main.currentUserId = -1;
+                main.profileTB.Text = "Войти";
+                main.isLogIn = false;
+                Go.to(main._catalogPage);
+            }
+        }
+
+        private void mypresent_MouseLeftButtonDown_1(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is Border clickedBorder)
+            {
+                var presentData = clickedBorder.DataContext as Present;
+                if (Application.Current.MainWindow is MainWindow main)
+                {
+                    var modalPresent = new PresentModal(presentData);
+                    modalPresent.Owner = main;
+                    modalPresent.ShowDialog();
+                }
+                
+            }
+        }
     }
 }

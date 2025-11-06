@@ -1,0 +1,241 @@
+﻿<Window x:Class="Moon_nft_application.Elements.PresentModal"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Moon_nft_application.Elements"
+        xmlns:local2="clr-namespace:Moon_nft_application.Scripts"     
+        mc:Ignorable="d"
+        Title="PresentModal" Height="auto" MinHeight="300" Width="456" WindowStyle="None" Background="Transparent"
+        Loaded="Window_Loaded" ResizeMode="NoResize" WindowStartupLocation="CenterOwner">
+    <Window.Resources>
+        <local2:ByteArrayToImageSourceConverter x:Key="ByteArrayToImageConverter"/>
+    </Window.Resources>
+    <Border Background="#FF1A1A1A" CornerRadius="23">
+        <Grid ShowGridLines="True">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="20"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <!-- Строка для управления продажей -->
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="10"/>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="10"/>
+            </Grid.ColumnDefinitions>
+            <Image x:Name="closeBtn" 
+                   Source="../Resources/Icons/Plus.png"
+                   Grid.Row="1"
+                   Grid.Column="1"
+                   Height="70"
+                   Width="70"
+                   HorizontalAlignment="Right"
+                   VerticalAlignment="Top"
+                   MouseLeftButtonDown="closeBtn_MouseLeftButtonDown"
+                   Cursor="Hand"/>
+            <Border Grid.Row="1"
+                    Grid.Column="1"
+                    VerticalAlignment="Top"
+                    HorizontalAlignment="Center"
+                    Height="176"
+                    Width="176"
+                    Visibility="Visible"
+                    CornerRadius="12" Cursor="">
+                <Border.Background>
+                    <ImageBrush ImageSource="{Binding ImagePresent, Converter={StaticResource ByteArrayToImageConverter}}"/>
+                </Border.Background>
+            </Border>
+
+            <TextBlock Text="{Binding IdPresentCollectionNavigation.NamePresentCollection}"
+                       Grid.Row="2"
+                       Grid.Column="1"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                       FontSize="30"
+                       Foreground="WhiteSmoke"/>
+
+            <TextBlock Text="{Binding NumPresent, StringFormat='#{0}'}"
+                       Grid.Row="3"
+                       Grid.Column="1"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                       FontSize="20"
+                       Foreground="WhiteSmoke"/>
+
+            <!-- Блок свойств -->
+            <Border Grid.Row="4"
+                    Grid.Column="1"
+                    Margin="10,15,10,10"
+                    CornerRadius="8"
+                    Background="#232426"
+                    Height="auto">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Строка 1: Владелец -->
+                    <TextBlock Text="Владелец" 
+                               Grid.Row="0" Grid.Column="0"
+                               Margin="10,5,5,5"
+                               Foreground="#AAAAAA"
+                               FontWeight="SemiBold"
+                               VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding OwneridPresentNavigation.NicknameUser}" 
+                               Grid.Row="0" Grid.Column="1"
+                               Margin="5,5,10,5"
+                               Foreground="White"
+                               VerticalAlignment="Center"/>
+
+                    <!-- Строка 2: Модель -->
+                    <TextBlock Text="Модель" 
+                               Grid.Row="1" Grid.Column="0"
+                               Margin="10,5,5,5"
+                               Foreground="#AAAAAA"
+                               FontWeight="SemiBold"
+                               VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding IdModelNavigation.NameModel}" 
+                               Grid.Row="1" Grid.Column="1"
+                               Margin="5,5,10,5"
+                               Foreground="White"
+                               VerticalAlignment="Center"/>
+
+                    <!-- Строка 3: Фон -->
+                    <TextBlock Text="Фон" 
+                               Grid.Row="2" Grid.Column="0"
+                               Margin="10,5,5,5"
+                               Foreground="#AAAAAA"
+                               FontWeight="SemiBold"
+                               VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding IdBackgroundNavigation.NameBackground}"
+                               Grid.Row="2" Grid.Column="1"
+                               Margin="5,5,10,5"
+                               Foreground="White"
+                               VerticalAlignment="Center"/>
+
+                    <!-- Строка 4: Узор -->
+                    <TextBlock Text="Узор" 
+                               Grid.Row="3" Grid.Column="0"
+                               Margin="10,5,5,5"
+                               Foreground="#AAAAAA"
+                               FontWeight="SemiBold"
+                               VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding IdSymbolNavigation.NameSymbol}"
+                               Grid.Row="3" Grid.Column="1"
+                               Margin="5,5,10,5"
+                               Foreground="White"
+                               VerticalAlignment="Center"/>
+
+                    <!-- Строка 5: Кол-во -->
+                    <TextBlock Text="Кол-во" 
+                               Grid.Row="4" Grid.Column="0"
+                               Margin="10,5,5,5"
+                               Foreground="#AAAAAA"
+                               FontWeight="SemiBold"
+                               VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding displayNum}"
+                               Grid.Row="4" Grid.Column="1"
+                               Margin="5,5,10,5"
+                               Foreground="White"
+                               VerticalAlignment="Center"/>
+                </Grid>
+            </Border>
+
+            <!-- Новая строка (5) для управления продажей -->
+            <StackPanel HorizontalAlignment="Stretch"
+                        Orientation="Vertical"
+                        Grid.Row="5"
+                        Grid.Column="1"
+                        x:Name="inProfileGrid"
+                        Visibility="Collapsed">
+                <TextBox x:Name="PriceTextBox"
+                         Grid.Row="5"
+                         Grid.Column="1"
+                         Margin="10,5,10,5"
+                         Background="#232426"
+                         Foreground="White"
+                         BorderBrush="#444444"
+                         VerticalAlignment="Center"
+                         HorizontalAlignment="Stretch"
+                         TextWrapping="NoWrap"
+                         MaxLength="10" 
+                         Visibility="Collapsed" 
+                    PreviewTextInput="PriceTextBox_PreviewTextInput"
+                         FontSize="30"/>
+
+                    <Button x:Name="SellButton"
+                        Grid.Row="5"
+                        Grid.Column="1"
+                        Margin="10,25,10,10"
+                        Background="#232426"
+                        Foreground="White"
+                        BorderBrush="#444444"
+                        Content="Выставить на продажу"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Stretch"
+                        Cursor="Hand"
+                        Click="SellButton_Click" 
+                        />
+
+                    <Button x:Name="CancelSellButton"
+                        Grid.Row="5"
+                        Grid.Column="1"
+                        Margin="10,5,10,10"
+                        Background="#232426"
+                        Foreground="White"
+                        BorderBrush="#444444"
+                        Content="Отменить продажу"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Stretch"
+                        Cursor="Hand"
+                        Click="CancelSellButton_Click"
+                        Visibility="Collapsed" 
+                        />
+
+            </StackPanel>
+            <StackPanel x:Name="inCatalogGrid"
+                        HorizontalAlignment="Stretch"
+                        Orientation="Horizontal"
+                        Grid.Row="5"
+                        Grid.Column="1"
+                        Visibility="Visible">
+                <Button x:Name="buyModalbtn"
+        Margin="10,5,10,10"
+        Background="#232426"
+        Foreground="White"
+        BorderBrush="#444444"
+        Content="{Binding Lot.PriceLot, StringFormat='Купить за {0} TON'}"
+        VerticalAlignment="Center"
+        HorizontalAlignment="Stretch"
+        Cursor="Hand"
+        Click="cartModalbtn_Click"
+        Visibility="Visible" 
+        />
+                <Button x:Name="cartModalbtn"
+                        Margin="10,5,10,10"
+                        Background="#232426"
+                        Foreground="White"
+                        BorderBrush="#444444"
+                        Content="В корзину"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Stretch"
+                        Cursor="Hand"
+                        Click="cartModalbtn_Click"
+                        Visibility="Visible" 
+                        />
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>

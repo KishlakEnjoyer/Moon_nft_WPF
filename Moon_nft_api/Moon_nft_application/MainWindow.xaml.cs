@@ -21,10 +21,11 @@ namespace Moon_nft_application
     {
         public bool isLogIn = false;
         public int currentUserId = -1;
+        public catalogPage _catalogPage = new catalogPage();
         public MainWindow()
         {
             InitializeComponent();
-            Go.to(new catalogPage());
+            Go.to(_catalogPage);
         }
 
         private void LoginButton_Click(object sender, RoutedEventArgs e)
@@ -46,7 +47,8 @@ namespace Moon_nft_application
         {
             if (main_frame.Content is not catalogPage)
             {
-                main_frame.NavigationService.Navigate(new catalogPage());
+                main_frame.NavigationService.Navigate(_catalogPage);
+                _catalogPage.UpdateLotList();
             }
         }
     }

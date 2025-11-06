@@ -16,6 +16,16 @@ namespace Moon_nft_api.Controllers
     [ApiController]
     public class NFTController : ControllerBase
     {
+        [HttpGet("checkPresent")]
+        public bool checkPresent(int idPresent)
+        {
+            if (MoonNftDbContext.GetContext.Lots.FirstOrDefault(l => l.IdPresent == idPresent && l.StatusLot == "Active") is not null)
+            {
+                return false;
+            }
+            return true;
+        }
+
         [HttpPut("PurchasePresent")]
         public IActionResult buyPresent(int idLot, int buyerId)
         {
@@ -87,7 +97,7 @@ namespace Moon_nft_api.Controllers
             }
         }
 
-        [HttpPut("RemoveLotToCart")]
+        [HttpDelete("RemoveLotToCart")]
         public IActionResult removeLotToCart(int idUser, int idLot)
         {
             try
@@ -138,11 +148,15 @@ namespace Moon_nft_api.Controllers
             try
             {
                 List<Model> models = MoonNftDbContext.GetContext.Models.ToList();
-                return models;
+                Model m = new Model();
+                m.IdModel = 2;
+                return new List<Model>() { m };
             }
             catch
             {
-                return new List<Model>();
+                Model m = new Model();
+                m.IdModel = 2;
+                return new List<Model>() { m };
             }
         }
 
@@ -331,6 +345,7 @@ namespace Moon_nft_api.Controllers
 
                 randomModel = models[rnd.Next(models.Count)];
                 randomBg = bgs[rnd.Next(bgs.Count)];
+                // randomBg = bgs[8];
                 randomSymbol = symbols[rnd.Next(symbols.Count)];
             }
             else
@@ -471,9 +486,9 @@ namespace Moon_nft_api.Controllers
         }
 
         [HttpPut("TurnOffLot")]
-        public IActionResult TurnOffLot(int _lotId)
+        public IActionResult TurnOffLot(int _presentId)
         {
-            Lot? _currlot = MoonNftDbContext.GetContext.Lots.FirstOrDefault(l => l.IdLot == _lotId);
+            Lot? _currlot = MoonNftDbContext.GetContext.Lots.FirstOrDefault(l => l.IdPresent == _presentId && l.StatusLot == "Active");
             if (_currlot is null)
             {
                 return BadRequest("Такого лота не существует");

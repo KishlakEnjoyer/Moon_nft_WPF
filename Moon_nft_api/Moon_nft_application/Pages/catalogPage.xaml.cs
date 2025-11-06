@@ -47,7 +47,7 @@ namespace Moon_nft_application.Pages
             set
             {
                 _allLots = value;
-                OnPropertyChanged(); // или RaisePropertyChanged, если используете MVVM
+                OnPropertyChanged();
             }
         }
 
@@ -95,7 +95,6 @@ namespace Moon_nft_application.Pages
             filterSymbol.SelectedIndex = 0;
             filterSort.SelectedIndex = 0;
 
-            // Загружаем модели "Все модели" при старте
             var modelsWithPlaceholder = new List<Model>
             {
                 new Model { IdModel = 0, NameModel = "Все модели" }
@@ -105,7 +104,7 @@ namespace Moon_nft_application.Pages
             filterModel.ItemsSource = modelsWithPlaceholder;
             filterModel.SelectedIndex = 0;
 
-            _isInitialized = true; // Теперь можно обрабатывать изменения фильтров
+            _isInitialized = true; 
 
             await UpdateLotList();
         }
@@ -123,7 +122,6 @@ namespace Moon_nft_application.Pages
 
             var lots = await LoadAllLots(searchQuery, collectionName, modelName, backgroundName, symbolName, sortName);
 
-            // Обновляем ObservableCollection напрямую
             AllLots.Clear();
             foreach (var lot in lots)
             {
@@ -131,11 +129,10 @@ namespace Moon_nft_application.Pages
             }
         }
 
-        // --- Методы загрузки данных (без изменений) ---
         private async Task<List<Presentcollection>> LoadAllVid()
         {
             using var client = new HttpClient();
-            client.BaseAddress = new Uri("http://localhost:5192/");
+            client.BaseAddress = new Uri("http://localhost:3000/");
             try
             {
                 var response = await client.GetAsync("api/NFT/GetAllPresentVid");
@@ -154,7 +151,7 @@ namespace Moon_nft_application.Pages
         private async Task<List<Background>> LoadAllBg()
         {
             using var client = new HttpClient();
-            client.BaseAddress = new Uri("http://localhost:5192/");
+            client.BaseAddress = new Uri("http://localhost:3000/");
             try
             {
                 var response = await client.GetAsync("api/NFT/GetAllBG");
@@ -173,7 +170,7 @@ namespace Moon_nft_application.Pages
         private async Task<List<Symbol>> LoadAllSymbols()
         {
             using var client = new HttpClient();
-            client.BaseAddress = new Uri("http://localhost:5192/");
+            client.BaseAddress = new Uri("http://localhost:3000/");
             try
             {
                 var response = await client.GetAsync("api/NFT/GetAllSym");
@@ -192,7 +189,7 @@ namespace Moon_nft_application.Pages
         private async Task<Presentcollection> LoadModelsForCollection(int currCollId)
         {
             using var client = new HttpClient();
-            client.BaseAddress = new Uri("http://localhost:5192/");
+            client.BaseAddress = new Uri("http://localhost:3000/");
             try
             {
                 var response = await client.GetAsync($"api/NFT/GetAllModelsForCollection?idCurrColl={currCollId}");
@@ -211,7 +208,7 @@ namespace Moon_nft_application.Pages
         private async Task<List<Model>> LoadAllModels()
         {
             using var client = new HttpClient();
-            client.BaseAddress = new Uri("http://localhost:5192/");
+            client.BaseAddress = new Uri("http://localhost:3000/");
             try
             {
                 var response = await client.GetAsync("api/NFT/GetAllModels");
@@ -230,7 +227,7 @@ namespace Moon_nft_application.Pages
         private async Task<List<Lot>> LoadAllLots(string search, string _collection, string _model, string _background, string _symbol, string _sort)
         {
             using var client = new HttpClient();
-            client.BaseAddress = new Uri("http://localhost:5192/");
+            client.BaseAddress = new Uri("http://localhost:3000/");
             try
             {
                 var url = $"api/NFT/GetAllActiveLots?" +
@@ -254,7 +251,6 @@ namespace Moon_nft_application.Pages
             }
         }
 
-        // --- Обработчики событий с вызовом UpdateLotList ---
         private async void filterVid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (!_isInitialized || filterVid.SelectedItem == null) return;

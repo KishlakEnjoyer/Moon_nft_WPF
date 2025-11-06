@@ -2,12 +2,169 @@
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-      xmlns:local="clr-namespace:Moon_nft_application.Pages"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+      xmlns:local="clr-namespace:Moon_nft_application.Pages" 
+      xmlns:local1="clr-namespace:Moon_nft_application.Elements"
+      xmlns:local2="clr-namespace:Moon_nft_application.Scripts"
+      
       mc:Ignorable="d" 
-      d:DesignHeight="450" d:DesignWidth="800"
+      d:DesignHeight="1400" d:DesignWidth="1080"
       Title="ProfilePage" Loaded="Page_Loaded">
-    <Grid>
+    <Page.Resources>
+        <local2:ByteArrayToImageSourceConverter x:Key="ByteArrayToImageConverter"/>
+    </Page.Resources>
+    <Grid ShowGridLines="true" Margin="0 10 0 0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="120"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="20"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="20"/>
+        </Grid.ColumnDefinitions>
+        <StackPanel Orientation="Horizontal" 
+                    Grid.Column="1"
+                    Grid.ColumnSpan="3"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center">
+            <TextBlock Text="{Binding NicknameUser}"
+                       FontSize="32"
+                       FontWeight="Bold"
+                       Foreground="WhiteSmoke"
+                       HorizontalAlignment="Left"
+                       VerticalAlignment="Center"/>
+            <Border CornerRadius="26" 
+                    Background="#FF1A1A1A"
+                    Margin="30 0"
+                    Padding="10">
+                <StackPanel Orientation="Horizontal">
+                    <Image Source="../Resources/Icons/ton.png" 
+                           Height="60"
+                           Width="60"/>
+                    <TextBlock Text="{Binding BalanceUser}"
+                               Foreground="White"
+                               FontSize="28"
+                               VerticalAlignment="Center"
+                               HorizontalAlignment="Center"/>
+                    <TextBlock Text="+"
+                               Foreground="WhiteSmoke"
+                               FontSize="34"
+                               VerticalAlignment="Center"
+                               HorizontalAlignment="Right"
+                               Margin="10 0"
+                               Cursor="Hand"
+                               MouseLeftButtonDown="TextBlock_MouseLeftButtonDown"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal"
+                    Grid.Row="0"
+                    Grid.Column="3"
+                    Grid.ColumnSpan="4"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center">
+
+            <Border CornerRadius="20"
+                    x:Name="adminBtn"
+                    VerticalAlignment="Center"
+                    Background="#232426"
+                    Padding="10"
+                    Margin="10 0"
+                    Cursor="Hand"
+                    MouseLeftButtonDown="adminBtn_MouseLeftButtonDown"
+                    Visibility="Collapsed">
+                <Image Source="../Resources/Icons/image 18.png"
+                       Height="40"
+                       Width="40"
+                       />
+            </Border>
+            
+            
+            <Border CornerRadius="20"
+                    x:Name="historyBtn"
+                    VerticalAlignment="Center"
+                    Background="#232426"
+                    Padding="10"
+                    Margin="10 0"
+                    Cursor="Hand"
+                    MouseLeftButtonDown="historyBtn_MouseLeftButtonDown">
+                <Image Source="../Resources/Icons/image 18.png"
+                       Height="40"
+                       Width="40"
+                       />
+            </Border>
+            <Border CornerRadius="20"
+                    x:Name="cartBtn"
+                    VerticalAlignment="Center"
+                    Background="#232426"
+                    Padding="10"
+                    Margin="10 0"
+                    Cursor="Hand"
+                    MouseLeftButtonDown="cartBtn_MouseLeftButtonDown">
+                <Image Source="../Resources/Icons/Shopping cart.png"
+                       Height="40"
+                       Width="40"
+                       />
+            </Border>
+            <Border HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    CornerRadius="20"
+                    Background="#232426"
+                    Padding="10"
+                    MouseLeftButtonDown="Border_MouseLeftButtonDown"
+                    Cursor="Hand">   
+                <TextBlock Text="Редактировать профиль"
+                           Foreground="WhiteSmoke"
+                           FontSize="28"/>
+            </Border>
+
+            <Border CornerRadius="20"
+                    x:Name="logoutBtn"
+                    VerticalAlignment="Center"
+                    Background="#232426"
+                    Padding="10"
+                    Margin="10 0"
+                    Cursor="Hand"
+                    MouseLeftButtonDown="logoutBtn_MouseLeftButtonDown">
+                <Image Source="../Resources/Icons/logout.png"
+                       Height="40"
+                       Width="40"
+                       />
+            </Border>
+        </StackPanel>
         
+        <!-- Ваши подарки -->
+        <ItemsControl x:Name="ItemsList"
+        ItemsSource="{Binding PresentOwneridPresentNavigations}" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="6">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel Orientation="Horizontal"/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Border CornerRadius="15"
+                            Margin="5"
+                            Width="170"
+                            Height="170" BorderBrush="#FF3F3F3F"
+                            BorderThickness="2"
+                            Cursor="Hand"
+                            MouseLeftButtonDown="mypresent_MouseLeftButtonDown_1">
+                        <Border.Background>
+                            <ImageBrush ImageSource="{Binding ImagePresent, Converter={StaticResource ByteArrayToImageConverter}}"/>
+                        </Border.Background>
+                    </Border>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
     </Grid>
 </Page>

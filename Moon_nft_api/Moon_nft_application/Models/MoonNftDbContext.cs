@@ -20,7 +20,6 @@ public partial class MoonNftDbContext : DbContext
             return _context;
         }
     }
-
     public MoonNftDbContext()
     {
     }
@@ -199,6 +198,7 @@ public partial class MoonNftDbContext : DbContext
             entity.Property(e => e.NamePresentCollection)
                 .HasMaxLength(70)
                 .HasColumnName("namePresentCollection");
+            entity.Property(e => e.PricePresentCollection).HasColumnName("pricePresentCollection");
 
             entity.HasMany(d => d.IdModels).WithMany(p => p.IdCollections)
                 .UsingEntity<Dictionary<string, object>>(

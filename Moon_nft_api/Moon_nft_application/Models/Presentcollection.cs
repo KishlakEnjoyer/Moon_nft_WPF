@@ -15,6 +15,8 @@ public partial class Presentcollection
 
     public int? AvailableCount { get; set; }
 
+    public float? PricePresentCollection { get; set; }
+
     public virtual ICollection<Present> Presents { get; set; } = new List<Present>();
 
     public virtual ICollection<Model> IdModels { get; set; } = new List<Model>();

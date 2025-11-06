@@ -15,6 +15,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using static System.Net.Mime.MediaTypeNames;
 using Moon_nft_application.Models;
+using Moon_nft_api.Services;
 
 namespace Moon_nft_application.Elements
 {
@@ -23,8 +24,7 @@ namespace Moon_nft_application.Elements
     /// </summary>
     public partial class AuthWindow : Window
     {
-        private bool _isRegisterMode = false;
-        const string ApiBaseUrl = "http://localhost:5192/api";
+        const string ApiBaseUrl = "http://localhost:3000/api";
 
         public AuthWindow()
         {
@@ -33,22 +33,10 @@ namespace Moon_nft_application.Elements
 
         private void SwitchModeButton_Click(object sender, RoutedEventArgs e)
         {
-            _isRegisterMode = !_isRegisterMode;
-            if (_isRegisterMode)
-            {
-                Title = "Регистрация";
-                title.Text = "Регистрация";
-                sbutton.Content = "Зарегистрироваться";
-                SwitchModeButton.Content = "Уже есть аккаунт?";
-            }
-            else
-            {
-                Title = "Авторизация";
-                title.Text = "Войти в аккаунт";
-                sbutton.Content = "Войти";
-                SwitchModeButton.Content = "Нет аккаунта?";
-            }
+            TelegramService.OpenTelegramBot();
         }
+
+        
 
         private void SubmitButton_Click(object sender, RoutedEventArgs e)
         {
@@ -61,15 +49,7 @@ namespace Moon_nft_application.Elements
                 return;
             }
 
-            if (_isRegisterMode)
-            {
-                // Здесь — логика регистрации
-                MessageBox.Show("Регистрация пока не реализована", "Инфо", MessageBoxButton.OK);
-            }
-            else
-            {
-                Authorization(login, password);
-            }
+            Authorization(login, password);            
         }
 
         public async void Authorization(string login, string password)
@@ -80,7 +60,6 @@ namespace Moon_nft_application.Elements
             var content = new StringContent(json, Encoding.UTF8, "application/json");
             var response = await httpClient.PostAsync($"{ApiBaseUrl}/user/login", content);
             var responseString = await response.Content.ReadAsStringAsync();
-            MessageBox.Show($"Ответ от сервера: {responseString}");
             if (response.IsSuccessStatusCode)
             {
                 var options = new JsonSerializerOptions

@@ -1,4 +1,4 @@
-@Moon_nft_api_HostAddress = http://localhost:5192
+@Moon_nft_api_HostAddress = http://localhost:3000
 
 GET {{Moon_nft_api_HostAddress}}/weatherforecast/
 Accept: application/json
