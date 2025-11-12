@@ -16,6 +16,7 @@ using System.Windows.Shapes;
 using static System.Net.Mime.MediaTypeNames;
 using Moon_nft_application.Models;
 using Moon_nft_api.Services;
+using Moon_nft_api.Models;
 
 namespace Moon_nft_application.Elements
 {

@@ -1,4 +1,5 @@
-﻿using Moon_nft_application.Models;
+﻿using Moon_nft_api.DTOs;
+using Moon_nft_application.Models;
 using Moon_nft_application.Pages;
 using System;
 using System.Collections.Generic;
@@ -63,13 +64,17 @@ namespace Moon_nft_application.Elements
                 var json = await response.Content.ReadAsStringAsync();
 
                 MessageBox.Show(json);
-                CartButton.IsEnabled = false;
-                CartButton.Background = new BrushConverter().ConvertFromString("#FF1689FE") as Brush;
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Ошибка загрузки данных: {ex.Message}");
             }
+        }
+
+        // Класс для десериализации ошибки
+        public class ErrorResponse
+        {
+            public string Message { get; set; }
         }
 
         private async void BuyButton_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -132,6 +137,47 @@ namespace Moon_nft_application.Elements
                 {
                     MessageBox.Show($"Ошибка загрузки данных: {ex.Message}");
                 }
+            }
+        }
+
+        public async void openModal(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is Border clickedBorder)
+            {
+                var LotInfo = clickedBorder.DataContext as LotDto;
+                Present present = await GetFullInfoOfPresent(LotInfo.IdPresent);
+                if (Application.Current.MainWindow is MainWindow main)
+                {
+                    var modalPresent = new PresentModal(present, false, LotInfo.IdLot);
+                    modalPresent.Owner = main;
+                    modalPresent.ShowDialog();
+                }
+
+            }
+        }
+
+        public async Task<Present> GetFullInfoOfPresent(int _currPresentId)
+        {
+            using var client = new HttpClient();
+            client.BaseAddress = new Uri("http://localhost:3000/");
+
+            try
+            {
+                var response = await client.GetAsync($"api/NFT/GetPresentById?_presentId={_currPresentId}");
+                response.EnsureSuccessStatusCode();
+
+                var json = await response.Content.ReadAsStringAsync();
+                var result = JsonSerializer.Deserialize<Present>(
+                    json,
+                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+                );
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка загрузки данных: {ex.Message}");
+                return new Present() { DescPresent = "Ошибка при загрузке пользователя" };
             }
         }
     }

@@ -6,13 +6,13 @@
         xmlns:local="clr-namespace:Moon_nft_application.Elements"
         xmlns:local2="clr-namespace:Moon_nft_application.Scripts"     
         mc:Ignorable="d"
-        Title="PresentModal" Height="auto" MinHeight="300" Width="456" WindowStyle="None" Background="Transparent"
-        Loaded="Window_Loaded" ResizeMode="NoResize" WindowStartupLocation="CenterOwner">
+        Title="PresentModal" Height="auto" MaxHeight="600" MinHeight="300" Width="456" WindowStyle="None"
+        Loaded="Window_Loaded" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" Background="Transparent" AllowsTransparency="True">
     <Window.Resources>
         <local2:ByteArrayToImageSourceConverter x:Key="ByteArrayToImageConverter"/>
     </Window.Resources>
-    <Border Background="#FF1A1A1A" CornerRadius="23">
-        <Grid ShowGridLines="True">
+    <Border Background="#FF1A1A1A" CornerRadius="23" BorderBrush="#FF787878" BorderThickness="1">
+        <Grid ShowGridLines="False" Cursor="">
             <Grid.RowDefinitions>
                 <RowDefinition Height="20"/>
                 <RowDefinition Height="auto"/>
@@ -152,90 +152,116 @@
                                VerticalAlignment="Center"/>
                 </Grid>
             </Border>
-
-            <!-- Новая строка (5) для управления продажей -->
+            <!-- Это крч для профиля и своих подарков -->
             <StackPanel HorizontalAlignment="Stretch"
-                        Orientation="Vertical"
-                        Grid.Row="5"
-                        Grid.Column="1"
-                        x:Name="inProfileGrid"
-                        Visibility="Collapsed">
-                <TextBox x:Name="PriceTextBox"
-                         Grid.Row="5"
-                         Grid.Column="1"
-                         Margin="10,5,10,5"
+            Orientation="Vertical"
+            Grid.Row="5"
+            Grid.Column="1"
+            x:Name="inProfileGrid"
+            Visibility="Collapsed">
+                <Button x:Name="upgradePresentButton"
+                        Visibility="Collapsed"
+                         Margin="10,25,10,10"
                          Background="#232426"
                          Foreground="White"
                          BorderBrush="#444444"
+                         Content="Улучшить подарок"
                          VerticalAlignment="Center"
                          HorizontalAlignment="Stretch"
-                         TextWrapping="NoWrap"
-                         MaxLength="10" 
-                         Visibility="Collapsed" 
-                    PreviewTextInput="PriceTextBox_PreviewTextInput"
-                         FontSize="30"/>
+                         Cursor="Hand"
+                         Click="upgradePresentButton_Click"/>
 
-                    <Button x:Name="SellButton"
-                        Grid.Row="5"
-                        Grid.Column="1"
-                        Margin="10,25,10,10"
-                        Background="#232426"
-                        Foreground="White"
-                        BorderBrush="#444444"
-                        Content="Выставить на продажу"
-                        VerticalAlignment="Center"
-                        HorizontalAlignment="Stretch"
-                        Cursor="Hand"
-                        Click="SellButton_Click" 
-                        />
+                <TextBox x:Name="PriceTextBox"
+             Grid.Row="5"
+             Grid.Column="1"
+             Margin="10,5,10,5"
+             Background="#232426"
+             Foreground="White"
+             BorderBrush="#444444"
+             VerticalAlignment="Center"
+             HorizontalAlignment="Stretch"
+             TextWrapping="NoWrap"
+             MaxLength="10" 
+             Visibility="Collapsed" 
+             PreviewTextInput="PriceTextBox_PreviewTextInput"
+             FontSize="30"/>
 
-                    <Button x:Name="CancelSellButton"
-                        Grid.Row="5"
-                        Grid.Column="1"
-                        Margin="10,5,10,10"
-                        Background="#232426"
-                        Foreground="White"
-                        BorderBrush="#444444"
-                        Content="Отменить продажу"
-                        VerticalAlignment="Center"
-                        HorizontalAlignment="Stretch"
-                        Cursor="Hand"
-                        Click="CancelSellButton_Click"
-                        Visibility="Collapsed" 
-                        />
+                <Button x:Name="SellButton"
+            Grid.Row="5"
+            Grid.Column="1"
+            Margin="10,25,10,10"
+            Background="#232426"
+            Foreground="White"
+            BorderBrush="#444444"
+            Content="Выставить на продажу"
+            VerticalAlignment="Center"
+            HorizontalAlignment="Stretch"
+            Cursor="Hand"
+            Click="SellButton_Click" 
+            />
 
+                <Button x:Name="CancelSellButton"
+            Grid.Row="5"
+            Grid.Column="1"
+            Margin="10,5,10,10"
+            Background="#232426"
+            Foreground="White"
+            BorderBrush="#444444"
+            Content="Отменить продажу"
+            VerticalAlignment="Center"
+            HorizontalAlignment="Stretch"
+            Cursor="Hand"
+            Click="CancelSellButton_Click"
+            Visibility="Collapsed" 
+            />
             </StackPanel>
-            <StackPanel x:Name="inCatalogGrid"
-                        HorizontalAlignment="Stretch"
-                        Orientation="Horizontal"
-                        Grid.Row="5"
-                        Grid.Column="1"
-                        Visibility="Visible">
+            
+            <!-- Это для профиля и корзины своей -->
+            <Button x:Name="deleteFromCartBtn"
+                    Grid.Row="5"
+                    Grid.Column="1"
+                    Content="Удалить из корзины"
+                    Click="deleteFromCartBtn_Click"
+                    Visibility="Collapsed"
+                    />
+
+            <!-- Это крч для каталога тут купить или в корзину добавить -->
+            <Grid x:Name="inCatalogGrid"
+            HorizontalAlignment="Stretch"
+            Grid.Row="5"
+            Grid.Column="1"
+            Visibility="Collapsed">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
                 <Button x:Name="buyModalbtn"
-        Margin="10,5,10,10"
-        Background="#232426"
-        Foreground="White"
-        BorderBrush="#444444"
-        Content="{Binding Lot.PriceLot, StringFormat='Купить за {0} TON'}"
-        VerticalAlignment="Center"
-        HorizontalAlignment="Stretch"
-        Cursor="Hand"
-        Click="cartModalbtn_Click"
-        Visibility="Visible" 
-        />
+            Margin="10,5,10,10"
+            Background="#232426"
+            Foreground="White"
+            BorderBrush="#444444"
+            Content="{Binding Lot.PriceLot, StringFormat='Купить за {0} TON'}"
+            VerticalAlignment="Center"
+            HorizontalAlignment="Stretch"
+                        Grid.Column="0"
+            Cursor="Hand"
+            Click="buyModalbtn_Click"
+            Visibility="Visible" 
+            />
                 <Button x:Name="cartModalbtn"
-                        Margin="10,5,10,10"
-                        Background="#232426"
-                        Foreground="White"
-                        BorderBrush="#444444"
-                        Content="В корзину"
-                        VerticalAlignment="Center"
-                        HorizontalAlignment="Stretch"
-                        Cursor="Hand"
-                        Click="cartModalbtn_Click"
-                        Visibility="Visible" 
-                        />
-            </StackPanel>
+            Margin="10,5,10,10"
+            Background="#232426"
+            Foreground="White"
+            BorderBrush="#444444"
+            Content="В корзину"
+            VerticalAlignment="Center"
+                        Grid.Column="1"
+            HorizontalAlignment="Stretch"
+            Cursor="Hand"
+            Click="cartModalbtn_Click_1"
+            Visibility="Visible" 
+            />
+            </Grid>
         </Grid>
     </Border>
 </Window>

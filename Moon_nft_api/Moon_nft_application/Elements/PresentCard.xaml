@@ -28,12 +28,13 @@
 
             <Border Grid.Row="1"
                     Grid.Column="1"
-                    CornerRadius="12">
+                    CornerRadius="12"
+                    MouseLeftButtonDown="openModal">
                 <Border.Background>
-                    <ImageBrush ImageSource="{Binding IdPresentNavigation.ImagePresent, Converter={StaticResource ByteArrayToImageConverter}}"/>
+                    <ImageBrush ImageSource="{Binding ImagePresent, Converter={StaticResource ByteArrayToImageConverter}}"/>
                 </Border.Background>
             </Border>
-            
+
 
             <TextBlock x:Name="lotPresentName"
                        Grid.Row="2"
@@ -43,17 +44,17 @@
                        FontFamily="{StaticResource AgdasimaReg}"
                        FontSize="20"
                        Foreground="WhiteSmoke"
-                       Text="{Binding IdPresentNavigation.IdPresentCollectionNavigation.NamePresentCollection}"/>
-
+                       Text="{Binding PresentName}"/>
+            
             <TextBlock x:Name="lotPresentID"
-           Grid.Row="3"
-           Grid.Column="1"
-           VerticalAlignment="Center"
-           HorizontalAlignment="Left"
-           FontFamily="{StaticResource AgdasimaReg}"
-           FontSize="16"
-           Foreground="WhiteSmoke"
-           Text="{Binding IdPresentNavigation.displayNum}"/>
+   Grid.Row="3"
+   Grid.Column="1"
+   VerticalAlignment="Center"
+   HorizontalAlignment="Left"
+   FontFamily="{StaticResource AgdasimaReg}"
+   FontSize="16"
+   Foreground="WhiteSmoke"
+   Text="{Binding DisplayNum}"/>
 
             <Grid Grid.Row="4"
                   Grid.Column="1">

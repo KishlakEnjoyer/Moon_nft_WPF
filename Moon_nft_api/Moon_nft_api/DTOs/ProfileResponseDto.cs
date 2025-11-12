@@ -1,0 +1,10 @@
+﻿namespace Moon_nft_api.DTOs
+{
+    public class ProfileResponseDto
+    {
+        public int UserId { get; set; }
+        public string Nickname { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public float? Balance { get; set; }
+    }
+}

@@ -28,6 +28,10 @@ namespace Moon_nft_application.Pages
     public partial class ProfilePage : Page
     {
         private int currUserId = -1;
+
+        public bool flagCart = false;
+
+        public User userInfo = null;
         public ProfilePage(int currentUserId)
         {
             InitializeComponent();
@@ -36,7 +40,7 @@ namespace Moon_nft_application.Pages
 
         private async void Page_Loaded(object sender, RoutedEventArgs e)
         {
-            User userInfo = await GetFullInfoOfUser(currUserId);
+            userInfo = await GetFullInfoOfUser(currUserId);
             if (userInfo != null) 
             {   
                 DataContext = userInfo;
@@ -85,6 +89,18 @@ namespace Moon_nft_application.Pages
 
         private void cartBtn_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
+            if (!flagCart)
+            {
+                PresentTitles.Text = "Корзина";
+                ItemsList.ItemsSource = userInfo.IdLots.Where(l => l.StatusLot == "Active").Select(ul => ul.IdPresentNavigation).ToList();
+                flagCart = true;
+            }
+            else
+            {
+                PresentTitles.Text = "Ваши подарки";
+                ItemsList.ItemsSource = userInfo.PresentOwneridPresentNavigations;
+                flagCart = false;
+            }
 
         }
 
@@ -111,7 +127,7 @@ namespace Moon_nft_application.Pages
                 var presentData = clickedBorder.DataContext as Present;
                 if (Application.Current.MainWindow is MainWindow main)
                 {
-                    var modalPresent = new PresentModal(presentData);
+                    var modalPresent = new PresentModal(presentData, true, flagCart);
                     modalPresent.Owner = main;
                     modalPresent.ShowDialog();
                 }

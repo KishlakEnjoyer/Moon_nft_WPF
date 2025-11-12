@@ -10,6 +10,9 @@
     <Compile Update="Elements\AuthWindow.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="Elements\buyNonUpPresentModal.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Elements\PresentCard.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -25,6 +28,9 @@
   </ItemGroup>
   <ItemGroup>
     <Page Update="Elements\AuthWindow.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Elements\buyNonUpPresentModal.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Elements\PresentCard.xaml">

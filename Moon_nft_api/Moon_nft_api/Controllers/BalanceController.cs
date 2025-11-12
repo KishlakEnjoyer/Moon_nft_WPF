@@ -12,12 +12,6 @@ namespace Moon_nft_api.Controllers
     public class BalanceController : ControllerBase
     {
 
-        [HttpGet("getBalance")]
-        public async Task<IActionResult> getBalance()
-        {
-            return Ok("hello");
-        }
-
         [HttpPost("topup")]
         public async Task<IActionResult> TopUpBalance([FromBody] TopUpRequest request)
         {

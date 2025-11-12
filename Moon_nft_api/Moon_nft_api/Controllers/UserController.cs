@@ -57,6 +57,7 @@ namespace Moon_nft_api.Controllers
                                          .Include(u => u.PresentOwneridPresentNavigations)
                                          .ThenInclude(u => u.IdPresentCollectionNavigation)
                                          .Include(u => u.IdLots)
+                                         .ThenInclude(u => u.IdPresentNavigation)
                                          .Include(u => u.PresentAuthoridPresentNavigations)
                                          .ThenInclude(u => u.IdPresentCollectionNavigation)
                                          .FirstOrDefault(u => u.IdUser == userId);
@@ -110,7 +111,8 @@ namespace Moon_nft_api.Controllers
                 NicknameUser = req.Nickname,
                 DateRegUser = DateOnly.FromDateTime(DateTime.Now),
                 RoleUser = "User",
-                RatingUser = 0.0f
+                RatingUser = 0.0f,
+                BalanceUser = 0.0f
             };
 
             MoonNftDbContext.GetContext.Users.Add(newUser);

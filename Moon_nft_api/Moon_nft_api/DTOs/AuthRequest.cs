@@ -1,4 +1,4 @@
-﻿namespace Moon_nft_api.Models
+﻿namespace Moon_nft_api.DTOs
 {
     public class RegisterRequest
     {
@@ -21,5 +21,11 @@
         public string Nickname { get; set; }
         public string Email { get; set; }
         public string Message { get; set; }
+    }
+
+    public class PurchaseRequest
+    {
+        public int CollectionId { get; set; }
+        public int UserId { get; set; }
     }
 }

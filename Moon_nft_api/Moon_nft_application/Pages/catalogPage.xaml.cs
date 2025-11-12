@@ -19,29 +19,24 @@ using System.Text.Json;
 using System.Collections.ObjectModel;
 using System.Web;
 using System.ComponentModel;
-using System.Runtime.CompilerServices; // Для HttpUtility.UrlEncode
+using System.Runtime.CompilerServices;
+using Moon_nft_application.Elements;
+using Moon_nft_api.DTOs;
 
 namespace Moon_nft_application.Pages
 {
-    /// <summary>
-    /// Логика взаимодействия для catalogPage.xaml
-    /// </summary>
     public partial class catalogPage : Page, INotifyPropertyChanged
     {
-
         public event PropertyChangedEventHandler? PropertyChanged;
-
         protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-
-        private List<Model> _allModels;
-        private List<Presentcollection> _allCollections;
-
-        private ObservableCollection<Lot> _allLots = new();
-        public ObservableCollection<Lot> AllLots
+        private List<Model> _allModels = new();
+        private List<Presentcollection> _allCollections = new();
+        private ObservableCollection<LotDto> _allLots = new();
+        public ObservableCollection<LotDto> AllLots
         {
             get => _allLots;
             set
@@ -50,63 +45,60 @@ namespace Moon_nft_application.Pages
                 OnPropertyChanged();
             }
         }
-
-        private List<Background> _allBackgrounds;
-        private List<Symbol> _allSymbols;
-
-        private bool _isInitialized = false; // Флаг для предотвращения срабатывания фильтров при инициализации
+        private List<Background> _allBackgrounds = new();
+        private List<Symbol> _allSymbols = new();
+        private bool _isInitialized = false;
+        private readonly HttpClient _httpClient = new();
 
         public catalogPage()
         {
             InitializeComponent();
             DataContext = this;
-
         }
 
         private async void Page_Loaded(object sender, RoutedEventArgs e)
         {
-            _allCollections = await LoadAllVid();
-            _allBackgrounds = await LoadAllBg();
-            _allSymbols = await LoadAllSymbols();
+            try
+            {
+                _allCollections = await LoadAllVid();
+                _allBackgrounds = await LoadAllBg();
+                _allSymbols = await LoadAllSymbols();
+                _allModels = await LoadAllModels();
 
-            var collectionsWithPlaceholder = new List<Presentcollection>
+                SetupFilters();
+                _isInitialized = true;
+                await UpdateLotList();
+            }
+            catch (Exception ex)
             {
-                new Presentcollection { IdPresentCollections = 0, NamePresentCollection = "Все коллекции" }
-            };
-            var bgsWithPlaceholder = new List<Background>
-            {
-                new Background { IdBackground = 0, NameBackground = "Все фоны" }
-            };
-            var symbolsWithPlaceholder = new List<Symbol>
-            {
-                new Symbol { IdSymbol = 0, NameSymbol = "Все узоры" }
-            };
+                MessageBox.Show($"Ошибка при загрузке данных: {ex.Message}");
+            }
+        }
 
-            bgsWithPlaceholder.AddRange(_allBackgrounds);
-            symbolsWithPlaceholder.AddRange(_allSymbols);
+        private void SetupFilters()
+        {
+            var collectionsWithPlaceholder = new List<Presentcollection> { new Presentcollection { IdPresentCollections = 0, NamePresentCollection = "Все коллекции" } };
             collectionsWithPlaceholder.AddRange(_allCollections);
+
+            var bgsWithPlaceholder = new List<Background> { new Background { IdBackground = 0, NameBackground = "Все фоны" } };
+            bgsWithPlaceholder.AddRange(_allBackgrounds);
+
+            var symbolsWithPlaceholder = new List<Symbol> { new Symbol { IdSymbol = 0, NameSymbol = "Все узоры" } };
+            symbolsWithPlaceholder.AddRange(_allSymbols);
+
+            var modelsWithPlaceholder = new List<Model> { new Model { IdModel = 0, NameModel = "Все модели" } };
+            modelsWithPlaceholder.AddRange(_allModels);
 
             filterVid.ItemsSource = collectionsWithPlaceholder;
             filterBG.ItemsSource = bgsWithPlaceholder;
             filterSymbol.ItemsSource = symbolsWithPlaceholder;
+            filterModel.ItemsSource = modelsWithPlaceholder;
 
             filterVid.SelectedIndex = 0;
             filterBG.SelectedIndex = 0;
             filterSymbol.SelectedIndex = 0;
-            filterSort.SelectedIndex = 0;
-
-            var modelsWithPlaceholder = new List<Model>
-            {
-                new Model { IdModel = 0, NameModel = "Все модели" }
-            };
-            _allModels = await LoadAllModels();
-            modelsWithPlaceholder.AddRange(_allModels);
-            filterModel.ItemsSource = modelsWithPlaceholder;
             filterModel.SelectedIndex = 0;
-
-            _isInitialized = true; 
-
-            await UpdateLotList();
+            filterSort.SelectedIndex = 0;
         }
 
         public async Task UpdateLotList()
@@ -123,23 +115,20 @@ namespace Moon_nft_application.Pages
             var lots = await LoadAllLots(searchQuery, collectionName, modelName, backgroundName, symbolName, sortName);
 
             AllLots.Clear();
-            foreach (var lot in lots)
+            if (lots.Count > 0)
             {
-                AllLots.Add(lot);
+                AllLots.AddRange(lots);
             }
         }
 
         private async Task<List<Presentcollection>> LoadAllVid()
         {
-            using var client = new HttpClient();
-            client.BaseAddress = new Uri("http://localhost:3000/");
             try
             {
-                var response = await client.GetAsync("api/NFT/GetAllPresentVid");
+                var response = await _httpClient.GetAsync("http://localhost:3000/api/NFT/GetAllPresentVid");
                 response.EnsureSuccessStatusCode();
                 var json = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<List<Presentcollection>>(json,
-                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new List<Presentcollection>();
+                return JsonSerializer.Deserialize<List<Presentcollection>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new List<Presentcollection>();
             }
             catch (Exception ex)
             {
@@ -150,15 +139,12 @@ namespace Moon_nft_application.Pages
 
         private async Task<List<Background>> LoadAllBg()
         {
-            using var client = new HttpClient();
-            client.BaseAddress = new Uri("http://localhost:3000/");
             try
             {
-                var response = await client.GetAsync("api/NFT/GetAllBG");
+                var response = await _httpClient.GetAsync("http://localhost:3000/api/NFT/GetAllBG");
                 response.EnsureSuccessStatusCode();
                 var json = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<List<Background>>(json,
-                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new List<Background>();
+                return JsonSerializer.Deserialize<List<Background>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new List<Background>();
             }
             catch (Exception ex)
             {
@@ -169,15 +155,12 @@ namespace Moon_nft_application.Pages
 
         private async Task<List<Symbol>> LoadAllSymbols()
         {
-            using var client = new HttpClient();
-            client.BaseAddress = new Uri("http://localhost:3000/");
             try
             {
-                var response = await client.GetAsync("api/NFT/GetAllSym");
+                var response = await _httpClient.GetAsync("http://localhost:3000/api/NFT/GetAllSym");
                 response.EnsureSuccessStatusCode();
                 var json = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<List<Symbol>>(json,
-                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new List<Symbol>();
+                return JsonSerializer.Deserialize<List<Symbol>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new List<Symbol>();
             }
             catch (Exception ex)
             {
@@ -188,15 +171,12 @@ namespace Moon_nft_application.Pages
 
         private async Task<Presentcollection> LoadModelsForCollection(int currCollId)
         {
-            using var client = new HttpClient();
-            client.BaseAddress = new Uri("http://localhost:3000/");
             try
             {
-                var response = await client.GetAsync($"api/NFT/GetAllModelsForCollection?idCurrColl={currCollId}");
+                var response = await _httpClient.GetAsync($"http://localhost:3000/api/NFT/GetAllModelsForCollection?idCurrColl={currCollId}");
                 response.EnsureSuccessStatusCode();
                 var json = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<Presentcollection>(json,
-                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new Presentcollection();
+                return JsonSerializer.Deserialize<Presentcollection>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new Presentcollection();
             }
             catch (Exception ex)
             {
@@ -207,15 +187,12 @@ namespace Moon_nft_application.Pages
 
         private async Task<List<Model>> LoadAllModels()
         {
-            using var client = new HttpClient();
-            client.BaseAddress = new Uri("http://localhost:3000/");
             try
             {
-                var response = await client.GetAsync("api/NFT/GetAllModels");
+                var response = await _httpClient.GetAsync("http://localhost:3000/api/NFT/GetAllModels");
                 response.EnsureSuccessStatusCode();
                 var json = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<List<Model>>(json,
-                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new List<Model>();
+                return JsonSerializer.Deserialize<List<Model>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new List<Model>();
             }
             catch (Exception ex)
             {
@@ -224,13 +201,11 @@ namespace Moon_nft_application.Pages
             }
         }
 
-        private async Task<List<Lot>> LoadAllLots(string search, string _collection, string _model, string _background, string _symbol, string _sort)
+        private async Task<List<LotDto>> LoadAllLots(string search, string _collection, string _model, string _background, string _symbol, string _sort)
         {
-            using var client = new HttpClient();
-            client.BaseAddress = new Uri("http://localhost:3000/");
             try
             {
-                var url = $"api/NFT/GetAllActiveLots?" +
+                var url = $"http://localhost:3000/api/NFT/GetAllActiveLots?" +
                           $"search={HttpUtility.UrlEncode(search)}" +
                           $"&_collection={HttpUtility.UrlEncode(_collection)}" +
                           $"&_model={HttpUtility.UrlEncode(_model)}" +
@@ -238,16 +213,15 @@ namespace Moon_nft_application.Pages
                           $"&_symbol={HttpUtility.UrlEncode(_symbol)}" +
                           $"&_sort={HttpUtility.UrlEncode(_sort)}";
 
-                var response = await client.GetAsync(url);
+                var response = await _httpClient.GetAsync(url);
                 response.EnsureSuccessStatusCode();
                 var json = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<List<Lot>>(json,
-                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new List<Lot>();
+                return JsonSerializer.Deserialize<List<LotDto>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new List<LotDto>();
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Ошибка загрузки лотов: {ex.Message}");
-                return new List<Lot>();
+                return new List<LotDto>();
             }
         }
 
@@ -297,6 +271,16 @@ namespace Moon_nft_application.Pages
         private async void searchBar_TextChanged(object sender, TextChangedEventArgs e)
         {
             if (_isInitialized) await UpdateLotList();
+        }
+
+        private void nonUpPresentsShow_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (Application.Current.MainWindow is MainWindow main)
+            {
+                var modalPresent = new buyNonUpPresentModal(main.currentUserId);
+                modalPresent.Owner = main;
+                modalPresent.ShowDialog();
+            }
         }
     }
 }

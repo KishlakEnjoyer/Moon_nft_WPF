@@ -7,8 +7,7 @@ using System.Drawing.Drawing2D;
 using Moon_nft_api.DTOs;
 using System;
 using Moon_nft_api.Services;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+using Castle.Core.Resource;
 
 namespace Moon_nft_api.Controllers
 {
@@ -24,6 +23,25 @@ namespace Moon_nft_api.Controllers
                 return false;
             }
             return true;
+        }
+
+        [HttpGet("GetPresentById")]
+        public IActionResult getPresentById(int _presentId)
+        {
+            Present? currPres = MoonNftDbContext.GetContext.Presents.Include(p => p.AuthoridPresentNavigation)
+                .Include(p => p.IdBackgroundNavigation)
+                .Include(p => p.IdModelNavigation)
+                .Include(p => p.IdPresentCollectionNavigation)
+                .Include(p => p.IdSymbolNavigation)
+                .Include(p => p.OwneridPresentNavigation)
+                .Include(p => p.Transactions)
+                .FirstOrDefault(p => p.IdPresent == _presentId);
+
+            if (currPres is not null)
+            {
+                return Ok(currPres);
+            }
+            return NotFound("Такого подарка нет!");
         }
 
         [HttpPut("PurchasePresent")]
@@ -52,8 +70,10 @@ namespace Moon_nft_api.Controllers
                     }
 
                     present.OwneridPresent = buyerId;
-
-                    saler.BalanceUser += (float?)(currLot.PriceLot * 0.94);
+                    if (saler is not null)
+                    {
+                        saler.BalanceUser += (float?)(currLot.PriceLot * 0.94);
+                    }
 
                     currLot.StatusLot = "Sold";
                     MoonNftDbContext.GetContext.Transactions.Add(new Transaction()
@@ -64,6 +84,8 @@ namespace Moon_nft_api.Controllers
                         DateTransaction = DateOnly.FromDateTime(DateTime.Today),
                         SumTransaction = (float)currLot.PriceLot
                     });
+
+
                     MoonNftDbContext.GetContext.SaveChanges();
 
                     return Ok("Покупка совершена успешно!");
@@ -77,134 +99,207 @@ namespace Moon_nft_api.Controllers
         }
 
         [HttpPut("AddLotToCart")]
-        public IActionResult addLotToCart(int idUser, int idLot)
+        public IActionResult addLotToCart([FromQuery] int idUser, [FromQuery] int idLot)
         {
             try
             {
-                User currUser = MoonNftDbContext.GetContext.Users.FirstOrDefault(u => u.IdUser == idUser);
-                Lot currLot = MoonNftDbContext.GetContext.Lots.FirstOrDefault(u => u.IdLot == idLot);
+                var context = MoonNftDbContext.GetContext; 
+
+                var currUser = context.Users
+                    .Include(u => u.IdLots) 
+                    .FirstOrDefault(u => u.IdUser == idUser);
+
+                var currLot = context.Lots.FirstOrDefault(l => l.IdLot == idLot);
+
+                if (currUser == null || currLot == null)
+                {
+                    return BadRequest("Пользователь или лот не найдены.");
+                }
+
+                if (currUser.IdUser == currLot.IdSaler)
+                {
+                    return BadRequest(new { message = "Это ваш лот, в корзину добавить не получится!" });
+                }
+
                 if (currUser.IdLots.Contains(currLot))
                 {
-                    return BadRequest("Лот уже в корзине!");
+                    return BadRequest(new { message = "Лот уже в корзине!" });
                 }
+
                 currUser.IdLots.Add(currLot);
-                MoonNftDbContext.GetContext.SaveChanges();
+                context.SaveChanges();
+
                 return Ok("Лот добавлен в корзину!");
             }
-            catch
+            catch (Exception ex) 
             {
                 return BadRequest("Выберете другой лот");
             }
         }
 
         [HttpDelete("RemoveLotToCart")]
-        public IActionResult removeLotToCart(int idUser, int idLot)
+        public IActionResult removeLotToCart([FromQuery] int idUser, [FromQuery] int idLot)
         {
             try
             {
-                User? currUser = MoonNftDbContext.GetContext.Users.FirstOrDefault(u => u.IdUser == idUser);
-                Lot? currLot = MoonNftDbContext.GetContext.Lots.FirstOrDefault(u => u.IdLot == idLot);
-                currUser.IdLots.Remove(currLot);
-                MoonNftDbContext.GetContext.SaveChanges();
-                return Ok("Лот удалён из корзину!");
+                var context = MoonNftDbContext.GetContext; 
+
+                
+                var user = context.Users
+                    .Include(u => u.IdLots) 
+                    .FirstOrDefault(u => u.IdUser == idUser);
+
+                var lot = context.Lots.FirstOrDefault(l => l.IdLot == idLot);
+
+                if (user == null || lot == null)
+                {
+                    return BadRequest("Пользователь или лот не найдены.");
+                }
+
+                user.IdLots.Remove(lot);
+                context.SaveChanges();
+
+                return Ok("Лот удалён из корзины!");
             }
-            catch
+            catch (Exception ex) 
             {
                 return BadRequest("Выберете другой лот");
             }
         }
 
         [HttpGet("GetAllPresentVid")]
-        public List<Presentcollection> getAllVid()
+        public List<PresentcollectionDto> getAllVid()
         {
             try
             {
-                List<Presentcollection> vids = MoonNftDbContext.GetContext.Presentcollections.ToList();
-                return vids;
+                var context = MoonNftDbContext.GetContext;
+                var collections = context.Presentcollections.Select(c => new PresentcollectionDto
+                {
+                    IdPresentCollections = c.IdPresentCollections,
+                    NamePresentCollection = c.NamePresentCollection,
+                    PricePresentCollection = (decimal)c.PricePresentCollection,
+                    AvailableCount = c.AvailableCount,
+                    LimitPresentCollection = c.LimitPresentCollection,
+                    ImagePresentcollections = c.ImagePresentcollections
+                }).ToList();
+                return collections;
             }
             catch
             {
-                return new List<Presentcollection>();
+                return new List<PresentcollectionDto>();
             }
         }
 
         [HttpGet("GetAllModelsForCollection")]
-        public Presentcollection getAllModels(int idCurrColl)
+        public PresentcollectionDto getAllModels(int idCurrColl)
         {
             try
             {
-                Presentcollection models = MoonNftDbContext.GetContext.Presentcollections.Include(m => m.IdModels).FirstOrDefault(m => m.IdPresentCollections == idCurrColl);
-                return models;
+                var context = MoonNftDbContext.GetContext;
+                var collection = context.Presentcollections
+                    .Where(c => c.IdPresentCollections == idCurrColl)
+                    .Select(c => new PresentcollectionDto
+                    {
+                        IdPresentCollections = c.IdPresentCollections,
+                        NamePresentCollection = c.NamePresentCollection,
+                        PricePresentCollection = (decimal)c.PricePresentCollection,
+                        AvailableCount = c.AvailableCount,
+                        LimitPresentCollection = c.LimitPresentCollection,
+                        ImagePresentcollections = c.ImagePresentcollections,
+                        IdModels = c.IdModels.Select(m => new ModelDto
+                        {
+                            IdModel = m.IdModel,
+                            NameModel = m.NameModel,
+                            ImageModel = m.ImageModel
+                        }).ToList()
+                    })
+                    .FirstOrDefault();
+                return collection ?? new PresentcollectionDto();
             }
             catch
             {
-                return new Presentcollection();
+                return new PresentcollectionDto();
             }
         }
 
         [HttpGet("GetAllModels")]
-        public List<Model> getAllAllModels()
+        public List<ModelDto> getAllAllModels()
         {
             try
             {
-                List<Model> models = MoonNftDbContext.GetContext.Models.ToList();
-                Model m = new Model();
-                m.IdModel = 2;
-                return new List<Model>() { m };
+                var context = MoonNftDbContext.GetContext;
+                var models = context.Models.Select(m => new ModelDto
+                {
+                    IdModel = m.IdModel,
+                    NameModel = m.NameModel,
+                    ImageModel = m.ImageModel
+                }).ToList();
+                return models;
             }
             catch
             {
-                Model m = new Model();
-                m.IdModel = 2;
-                return new List<Model>() { m };
+                return new List<ModelDto>();
             }
         }
 
         [HttpGet("GetAllBG")]
-        public List<Background> getAllBg()
+        public List<BackgroundDto> getAllBg()
         {
             try
             {
-                List<Background> bgs = MoonNftDbContext.GetContext.Backgrounds.ToList();
+                var context = MoonNftDbContext.GetContext;
+                var bgs = context.Backgrounds.Select(b => new BackgroundDto
+                {
+                    IdBackground = b.IdBackground,
+                    NameBackground = b.NameBackground,
+                    ColorBackground = b.ColorBackground
+                }).ToList();
                 return bgs;
             }
             catch
             {
-                return new List<Background>();
+                return new List<BackgroundDto>();
             }
         }
 
         [HttpGet("GetAllSym")]
-        public List<Symbol> getAllSymbols()
+        public List<SymbolDto> getAllSymbols()
         {
             try
             {
-                List<Symbol> symbols = MoonNftDbContext.GetContext.Symbols.ToList();
+                var context = MoonNftDbContext.GetContext;
+                var symbols = context.Symbols.Select(s => new SymbolDto
+                {
+                    IdSymbol = s.IdSymbol,
+                    NameSymbol = s.NameSymbol,
+                    ImageSymbol = s.ImageSymbol
+                }).ToList();
                 return symbols;
             }
             catch
             {
-                return new List<Symbol>();
+                return new List<SymbolDto>();
             }
         }
 
         [HttpGet("GetAllActiveLots")]
-        public List<Lot> getAllActiveLots(string? search, string _collection, string _model, string _background, string _symbol, string _sort)
+        public List<LotDto> getAllActiveLots(string? search, string _collection, string _model, string _background, string _symbol, string _sort)
         {
             try
             {
                 var context = MoonNftDbContext.GetContext;
                 var query = context.Lots
-                    .Include(l => l.IdPresentNavigation)
-                        .ThenInclude(p => p.IdPresentCollectionNavigation)
-                    .Include(l => l.IdPresentNavigation)
-                        .ThenInclude(p => p.IdModelNavigation)
-                    .Include(l => l.IdPresentNavigation)
-                        .ThenInclude(p => p.IdBackgroundNavigation)
-                    .Include(l => l.IdPresentNavigation)
-                        .ThenInclude(p => p.IdSymbolNavigation)
-                    .Where(l => l.StatusLot == "Active")
-                    .AsQueryable();
+            .Include(l => l.IdPresentNavigation)
+                .ThenInclude(p => p.IdPresentCollectionNavigation) 
+                .ThenInclude(c => c.IdModels)
+            .Include(l => l.IdPresentNavigation)
+                .ThenInclude(p => p.IdModelNavigation)
+            .Include(l => l.IdPresentNavigation)
+                .ThenInclude(p => p.IdBackgroundNavigation)
+            .Include(l => l.IdPresentNavigation)
+                .ThenInclude(p => p.IdSymbolNavigation) 
+            .Where(l => l.StatusLot == "Active")
+            .AsQueryable();
 
                 if (!string.IsNullOrEmpty(_collection) && _collection != "Все коллекции")
                 {
@@ -235,35 +330,51 @@ namespace Moon_nft_api.Controllers
 
                 if (_sort != null && _sort != "Нет (Сортировка)")
                 {
-                    query = _sort switch 
+                    query = _sort switch
                     {
                         "По цене (По убыванию)" => query.OrderByDescending(l => l.PriceLot),
-                        "По цене (По возрастанию)" => query.OrderBy(l => l.PriceLot),      
-                        "По дате улучшения (По убыванию)" => query.OrderByDescending(l => l.IdPresentNavigation.DateUpgradePresent), 
-                        "По дате улучшения (По возрастанию)" => query.OrderBy(l => l.IdPresentNavigation.DateUpgradePresent),    
-                        _ => query.OrderBy(l => l.IdLot) 
+                        "По цене (По возрастанию)" => query.OrderBy(l => l.PriceLot),
+                        "По дате улучшения (По убыванию)" => query.OrderByDescending(l => l.IdPresentNavigation.DateUpgradePresent),
+                        "По дате улучшения (По возрастанию)" => query.OrderBy(l => l.IdPresentNavigation.DateUpgradePresent),
+                        _ => query.OrderBy(l => l.IdLot)
                     };
                 }
 
-                var lots = query.ToList();
+                var lots = query.Select(l => new LotDto
+                {
+                    IdLot = l.IdLot,
+                    IdPresent = l.IdPresent,
+                    IdSaler = l.IdSaler,
+                    PriceLot = (float)l.PriceLot,
+                    StatusLot = l.StatusLot,
+                    PresentName = l.IdPresentNavigation.IdPresentCollectionNavigation.NamePresentCollection,
+                    ModelName = l.IdPresentNavigation.IdModelNavigation.NameModel,
+                    BackgroundName = l.IdPresentNavigation.IdBackgroundNavigation.NameBackground,
+                    SymbolName = l.IdPresentNavigation.IdSymbolNavigation.NameSymbol,
+                    ImagePresent = l.IdPresentNavigation.ImagePresent,
+                    DateUpgradePresent = l.IdPresentNavigation.DateUpgradePresent,
+                    NumPresent = l.IdPresentNavigation.NumPresent, 
+                    PresentCollectionLimit = l.IdPresentNavigation.IdPresentCollectionNavigation.LimitPresentCollection 
+                }).ToList();
+
                 return lots;
             }
             catch
             {
-                return new List<Lot>();
+                return new List<LotDto>();
             }
         }
 
         [HttpPost("PurchaseNonUpPresent")]
-        public IActionResult PurchaseNonUpPresent(int _collectionId, int _userId, string _description)
+        public IActionResult PurchaseNonUpPresent(PurchaseRequest request)
         {
-            User? buyer = MoonNftDbContext.GetContext.Users.FirstOrDefault(u => u.IdUser == _userId);
+            User? buyer = MoonNftDbContext.GetContext.Users.FirstOrDefault(u => u.IdUser == request.UserId);
             if (buyer is null)
             {
                 return BadRequest("Пользователь не найден!");
             }
 
-            Presentcollection? currentCollection = MoonNftDbContext.GetContext.Presentcollections.FirstOrDefault(c => c.IdPresentCollections == _collectionId);
+            Presentcollection? currentCollection = MoonNftDbContext.GetContext.Presentcollections.FirstOrDefault(c => c.IdPresentCollections == request.CollectionId);
             if (currentCollection is not null)
             {
                 int? availableCount = currentCollection.AvailableCount;
@@ -274,19 +385,19 @@ namespace Moon_nft_api.Controllers
                         return BadRequest("Баланса не хватает!");
                     }
 
-                    List<Present> presents = MoonNftDbContext.GetContext.Presents.Where(p => p.IdPresentCollection == _collectionId).ToList();
+                    List<Present> presents = MoonNftDbContext.GetContext.Presents.Where(p => p.IdPresentCollection == request.CollectionId).ToList();
 
                     Present newPresent = new Present()
                     {
-                        AuthoridPresent = _userId,
-                        OwneridPresent = _userId,
-                        IdPresentCollection = _collectionId,
+                        AuthoridPresent = request.UserId,
+                        OwneridPresent = request.UserId,
+                        IdPresentCollection = request.CollectionId,
                         IdModel = null,
                         IdBackground = null,
                         IdSymbol = null,
                         NumPresent = presents.Count + 1,
-                        ImagePresent = null,
-                        DescPresent = _description,
+                        ImagePresent = currentCollection.ImagePresentcollections,
+                        DescPresent = null,
                         UpgradePresent = 0,
                         DateUpgradePresent = null
                     };
@@ -453,7 +564,7 @@ namespace Moon_nft_api.Controllers
             currentPresent.IdModel = randomModel.IdModel;
             currentPresent.IdSymbol = randomSymbol.IdSymbol;
             currentPresent.UpgradePresent = 1;
-            
+
             MoonNftDbContext.GetContext.SaveChanges();
 
             return Ok("Подарок улучшен!");
@@ -462,30 +573,36 @@ namespace Moon_nft_api.Controllers
         [HttpPost("PublishLot")]
         public IActionResult PublishLot(int _presentId, float _priceLot)
         {
-            Present? currPresent = MoonNftDbContext.GetContext.Presents
+            var currPresent = MoonNftDbContext.GetContext.Presents
                 .Include(p => p.OwneridPresentNavigation)
                 .FirstOrDefault(p => p.IdPresent == _presentId);
-            if (currPresent is null) 
+
+            if (currPresent is null)
             {
                 return BadRequest("Такого подарка не существует!");
             }
+
             if (currPresent.UpgradePresent == 0)
             {
                 return BadRequest("Подарок не является уникальным!");
             }
-            Lot newLot = new Lot()
+
+            var newLot = new Lot()
             {
                 IdPresent = currPresent.IdPresent,
+                IdPresentNavigation = currPresent,
                 IdSaler = currPresent.OwneridPresent,
                 PriceLot = _priceLot,
                 StatusLot = "Active"
             };
+
             MoonNftDbContext.GetContext.Lots.Add(newLot);
             MoonNftDbContext.GetContext.SaveChanges();
+
             return Ok();
         }
 
-        [HttpPut("TurnOffLot")]
+        [HttpPost("TurnOffLot")]
         public IActionResult TurnOffLot(int _presentId)
         {
             Lot? _currlot = MoonNftDbContext.GetContext.Lots.FirstOrDefault(l => l.IdPresent == _presentId && l.StatusLot == "Active");
