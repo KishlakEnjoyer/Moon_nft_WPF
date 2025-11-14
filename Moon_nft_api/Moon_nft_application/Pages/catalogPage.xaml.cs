@@ -35,8 +35,8 @@ namespace Moon_nft_application.Pages
 
         private List<Model> _allModels = new();
         private List<Presentcollection> _allCollections = new();
-        private ObservableCollection<LotDto> _allLots = new();
-        public ObservableCollection<LotDto> AllLots
+        private ObservableCollection<LotDTO> _allLots = new();
+        public ObservableCollection<LotDTO> AllLots
         {
             get => _allLots;
             set
@@ -201,7 +201,7 @@ namespace Moon_nft_application.Pages
             }
         }
 
-        private async Task<List<LotDto>> LoadAllLots(string search, string _collection, string _model, string _background, string _symbol, string _sort)
+        private async Task<List<LotDTO>> LoadAllLots(string search, string _collection, string _model, string _background, string _symbol, string _sort)
         {
             try
             {
@@ -216,12 +216,12 @@ namespace Moon_nft_application.Pages
                 var response = await _httpClient.GetAsync(url);
                 response.EnsureSuccessStatusCode();
                 var json = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<List<LotDto>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new List<LotDto>();
+                return JsonSerializer.Deserialize<List<LotDTO>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new List<LotDTO>();
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Ошибка загрузки лотов: {ex.Message}");
-                return new List<LotDto>();
+                return new List<LotDTO>();
             }
         }
 

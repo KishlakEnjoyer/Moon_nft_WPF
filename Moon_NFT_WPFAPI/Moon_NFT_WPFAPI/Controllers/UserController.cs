@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Moon_nft_api.Models;
+using Moon_NFT_WPFAPI.Models;
 using BCrypt.Net;
 using Microsoft.EntityFrameworkCore;
-using Moon_nft_api.Services;
-using Moon_nft_api.DTOs;
-using Moon_nft_api.EmailModels;
+using Moon_NFT_WPFAPI.Services;
+using Moon_NFT_WPFAPI.DTOs;
+using Moon_NFT_WPFAPI.EmailModels;
 
-namespace Moon_nft_api.Controllers
+namespace Moon_NFT_WPFAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

@@ -1,0 +1,23 @@
+﻿using System;
+using System.Collections.Generic;
+
+namespace Moon_NFT_WPFAPI.Models;
+
+public partial class Presentcollection
+{
+    public int IdPresentCollections { get; set; }
+
+    public string? NamePresentCollection { get; set; }
+
+    public byte[]? ImagePresentcollections { get; set; }
+
+    public int? LimitPresentCollection { get; set; }
+
+    public int? AvailableCount { get; set; }
+
+    public float? PricePresentCollection { get; set; }
+
+    public virtual ICollection<Present> Presents { get; set; } = new List<Present>();
+
+    public virtual ICollection<Model> IdModels { get; set; } = new List<Model>();
+}

@@ -1,0 +1,27 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35506.116 d17.12
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Moon_NFT_WPFAPI", "Moon_NFT_WPFAPI\Moon_NFT_WPFAPI.csproj", "{0D4E5219-55D1-42BD-92F8-403EB313F002}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Элементы решения", "Элементы решения", "{1C792FCD-7CC4-47E4-A2B5-AADA48B13ABD}"
+	ProjectSection(SolutionItems) = preProject
+		docker-compose.yml = docker-compose.yml
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0D4E5219-55D1-42BD-92F8-403EB313F002}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D4E5219-55D1-42BD-92F8-403EB313F002}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0D4E5219-55D1-42BD-92F8-403EB313F002}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D4E5219-55D1-42BD-92F8-403EB313F002}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

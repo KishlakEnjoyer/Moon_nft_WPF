@@ -1,4 +1,4 @@
-﻿namespace Moon_nft_api.DTOs
+﻿namespace Moon_NFT_WPFAPI.DTOs
 {
     public class RegisterRequest
     {

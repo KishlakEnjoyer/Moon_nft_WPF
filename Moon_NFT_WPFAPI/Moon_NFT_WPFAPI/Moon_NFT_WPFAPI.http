@@ -1,0 +1,6 @@
+@Moon_NFT_WPFAPI_HostAddress = http://localhost:3000
+
+GET {{Moon_NFT_WPFAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

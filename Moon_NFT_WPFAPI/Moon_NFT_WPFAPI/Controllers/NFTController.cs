@@ -1,16 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Moon_nft_api.Models;
-using Moon_nft_api.DTOs;
-using Moon_nft_api.Services;
-using Microsoft.EntityFrameworkCore;
-using SixLabors.ImageSharp; // Для Image<Rgba32>, Color
-using SixLabors.ImageSharp.PixelFormats; // Для Rgba32
-using SixLabors.ImageSharp.Processing; // <--- ЭТА СТРОКА НУЖНА ДЛЯ .Translate, .RotateDegrees и т.д.
-using SixLabors.ImageSharp.Formats.Png; // Для PngFormat
-using System.Numerics; // Для Matrix3x2 (если используется где-то ещё)
-
-
-namespace Moon_nft_api.Controllers
+using Moon_NFT_WPFAPI.Models;
+using Moon_NFT_WPFAPI.DTOs;
+using Moon_NFT_WPFAPI.Services;
+using System.Numerics;
+using Microsoft.EntityFrameworkCore; 
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
+using SixLabors.ImageSharp.Formats.Png;
+namespace Moon_NFT_WPFAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -488,7 +486,7 @@ namespace Moon_nft_api.Controllers
             if (randomSymbol.ImageSymbol == null || randomSymbol.ImageSymbol.Length == 0)
                 return BadRequest("Изображение символа отсутствует.");
 
-            // Цвет фона (преобразование System.Drawing.Color в ImageSharp.Color)
+            // Цвет фона
             string bgcolor = randomBg.ColorBackground;
             System.Drawing.Color sysColor = bgService.HexToColor(bgcolor);
             var backgroundColor = SixLabors.ImageSharp.Color.FromRgb(sysColor.R, sysColor.G, sysColor.B);
@@ -497,7 +495,6 @@ namespace Moon_nft_api.Controllers
             int width = 800;
             int height = 800;
 
-            // Объявляем переменные изображений
             Image<Rgba32>? imgModel = null;
             Image<Rgba32>? imgSymbol = null;
             Image<Rgba32>? resultImage = null;
@@ -518,23 +515,22 @@ namespace Moon_nft_api.Controllers
 
                 var scaledSymbol = imgSymbol.Clone(ctx => ctx.Resize(symbolWidth, symbolHeight));
 
-                // Настройка прозрачности для символа
+                // Прозрачность
                 var symbolWithTransparency = scaledSymbol.Clone();
                 symbolWithTransparency.Mutate(ctx => ctx.ProcessPixelRowsAsVector4(pixelRow =>
                 {
                     for (int i = 0; i < pixelRow.Length; i++)
                     {
                         ref var pixel = ref pixelRow[i];
-                        // Устанавливаем альфа-канал на 50% (0.5f)
                         pixel.W *= 0.5f;
                     }
                 }));
 
                 // Создаём результатное изображение
                 resultImage = new Image<Rgba32>(width, height);
-                resultImage.Mutate(ctx => ctx.BackgroundColor(backgroundColor)); // Заливаем фон
+                resultImage.Mutate(ctx => ctx.BackgroundColor(backgroundColor));
 
-                // Рисуем сетку символов (исправленная версия)
+                // Рисуем сетку замков
                 int offsetX = 50;
                 int offsetY = 50;
 
@@ -542,22 +538,15 @@ namespace Moon_nft_api.Controllers
                 {
                     for (int y = offsetY; y < height - offsetY; y += stepY)
                     {
-                        // Создаем временное изображение для каждого символа с трансформацией
-                        using var transformedSymbol = new Image<Rgba32>(symbolWidth, symbolHeight);
+                        var matrix = Matrix3x2.CreateTranslation(-symbolWidth / 2.0f, -symbolHeight / 2.0f)
+                                           * Matrix3x2.CreateRotation(MathF.PI * 340.0f / 180.0f)
+                                           * Matrix3x2.CreateTranslation(x + symbolWidth / 2.0f, y + symbolHeight / 2.0f);
 
-                        // Заливаем прозрачным фоном
-                        transformedSymbol.Mutate(ctx => ctx.BackgroundColor(SixLabors.ImageSharp.Color.Transparent));
-
-                        // Рисуем символ с поворотом
-                        transformedSymbol.Mutate(ctx =>
+                        resultImage.Mutate(ctx =>
                         {
-                            // Поворачиваем на 340 градусов (20 градусов против часовой стрелки)
-                            ctx.Rotate(340f);
+                            ctx.Transform(matrix);
                             ctx.DrawImage(symbolWithTransparency, new Point(0, 0), 1.0f);
                         });
-
-                        // Рисуем преобразованный символ на основном изображении
-                        resultImage.Mutate(ctx => ctx.DrawImage(transformedSymbol, new Point(x, y), 1.0f));
                     }
                 }
 
@@ -573,7 +562,7 @@ namespace Moon_nft_api.Controllers
 
                 resultImage.Mutate(ctx => ctx.DrawImage(scaledModel, new Point(X, Y), 1.0f));
 
-                // === 💾 СОХРАНЕНИЕ В БАЗУ ДАННЫХ ===
+                // Сохраняем в байты
                 byte[] resultBytes;
                 using (var ms = new MemoryStream())
                 {
@@ -605,7 +594,6 @@ namespace Moon_nft_api.Controllers
             }
             finally
             {
-                // Убедимся, что изображения освобождаются
                 imgModel?.Dispose();
                 imgSymbol?.Dispose();
                 resultImage?.Dispose();

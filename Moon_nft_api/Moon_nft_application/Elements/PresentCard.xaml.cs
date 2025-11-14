@@ -144,7 +144,7 @@ namespace Moon_nft_application.Elements
         {
             if (sender is Border clickedBorder)
             {
-                var LotInfo = clickedBorder.DataContext as LotDto;
+                var LotInfo = clickedBorder.DataContext as LotDTO;
                 Present present = await GetFullInfoOfPresent(LotInfo.IdPresent);
                 if (Application.Current.MainWindow is MainWindow main)
                 {
