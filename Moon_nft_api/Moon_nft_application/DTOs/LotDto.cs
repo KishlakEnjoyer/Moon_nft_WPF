@@ -7,9 +7,12 @@
         public int IdPresent { get; set; }
 
         public DateOnly? DateUpgradePresent { get; set; }
+        public byte[] ImagePresent { get; set; }
 
         public int _collectionId { get; set; }
         public string _collectionName { get; set; }
+
+        public string displayNum { get; set; }
 
         public int _modelId { get; set; }
         public string _modelName { get; set; }

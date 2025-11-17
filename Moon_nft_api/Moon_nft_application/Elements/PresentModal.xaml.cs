@@ -1,4 +1,6 @@
-﻿using Moon_nft_application.Models;
+﻿using Moon_nft_api.DTOs;
+using Moon_nft_application.Models;
+using Moon_nft_application.Pages;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,13 +25,13 @@ namespace Moon_nft_application.Elements
     /// </summary>
     public partial class PresentModal : Window
     {
-        public Present currPresent;
+        public presentDTO currPresent;
         public int? currLotId;
         public bool flagOnSale = false;
         public bool flagInProfile = false;
         public bool flagCart = false;
 
-        public PresentModal(Present pres, bool inProfile, bool cartFlag)
+        public PresentModal(presentDTO pres, bool inProfile, bool cartFlag)
         {
             InitializeComponent();
             currPresent = pres;
@@ -37,7 +39,7 @@ namespace Moon_nft_application.Elements
             flagCart = cartFlag;
         }
 
-        public PresentModal(Present pres, bool inProfile, int? _lotId)
+        public PresentModal(presentDTO pres, bool inProfile, int? _lotId)
         {
             InitializeComponent();
             currPresent = pres;
@@ -64,7 +66,7 @@ namespace Moon_nft_application.Elements
             }
             else if (flagInProfile && flagCart)
             {
-                deleteFromCartBtn.Visibility = Visibility.Visible;
+                cartView.Visibility = Visibility.Visible;
             }
             else
             {
@@ -116,6 +118,7 @@ namespace Moon_nft_application.Elements
                     response.EnsureSuccessStatusCode();
 
                     MessageBox.Show("Подарок снят с продажи!");
+                    SellButton.Content = "Выставить на продажу";
 
                     flagOnSale = false;
                 }
@@ -188,24 +191,35 @@ namespace Moon_nft_application.Elements
                     authWindow.ShowDialog();
                     return;
                 }
-            }
 
-            using var client = new HttpClient();
-            client.BaseAddress = new Uri("http://localhost:3000/");
-            HttpResponseMessage response = null;
 
-            try
-            {
-                response = await client.PutAsync($"api/NFT/PurchasePresent?idLot={currLotId}&buyerId={buyerId}", null);
-                response.EnsureSuccessStatusCode();
+                using var client = new HttpClient();
+                client.BaseAddress = new Uri("http://localhost:3000/");
+                HttpResponseMessage response = null;
 
-                var json = await response.Content.ReadAsStringAsync();
+                try
+                {
+                    if (currLotId is not null)
+                    {
+                        response = await client.PutAsync($"api/NFT/PurchasePresent?idLot={currLotId}&buyerId={buyerId}", null);
+                    }
+                    else
+                    {
+                        if (DataContext is presentDTO pres)
+                        {
+                            response = await client.PutAsync($"api/NFT/PurchasePresent?idLot={pres.currLot.IdLot}&buyerId={buyerId}", null);
+                        }
+                    }
 
-                MessageBox.Show(json);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка загрузки данных: {ex.Message}");
+                    var json = await response.Content.ReadAsStringAsync();
+                    await RefreshCartData(main.currentUserId);
+                    Close();
+                    MessageBox.Show(json);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Ошибка загрузки данных: {ex.Message}");
+                }
             }
         }
 
@@ -246,9 +260,32 @@ namespace Moon_nft_application.Elements
             }
         }
 
-        private void upgradePresentButton_Click(object sender, RoutedEventArgs e)
+        private async void upgradePresentButton_Click(object sender, RoutedEventArgs e)
         {
+            if (Application.Current.MainWindow is MainWindow main)
+            {
+                using var client = new HttpClient();
+                client.BaseAddress = new Uri("http://localhost:3000/");
+                HttpResponseMessage response = null;
 
+                try
+                {
+                    if (DataContext is presentDTO pres)
+                    {
+                        response = await client.PutAsync($"api/NFT/UpgradePresent?presentId={pres.IdPresent}", null);
+                    }
+                    response.EnsureSuccessStatusCode();
+
+                    var json = await response.Content.ReadAsStringAsync();
+                    Close();
+                    await RefreshCartData(main.currentUserId);
+                    MessageBox.Show(json);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Ошибка загрузки данных: {ex.Message}");
+                }
+            }
         }
 
         private async void deleteFromCartBtn_Click(object sender, RoutedEventArgs e)
@@ -266,24 +303,59 @@ namespace Moon_nft_application.Elements
                     authWindow.ShowDialog();
                     return;
                 }
+
+
+                using var client = new HttpClient();
+                client.BaseAddress = new Uri("http://localhost:3000/");
+                HttpResponseMessage response = null;
+
+                try
+                {
+                    if (currLotId is not null)
+                    {
+                        response = await client.DeleteAsync($"api/NFT/RemoveLotToCart?idUser={buyerId}&idLot={currLotId}");
+                    }
+                    else
+                    {
+                        if (DataContext is presentDTO pres)
+                        {
+                            response = await client.DeleteAsync($"api/NFT/RemoveLotToCart?idUser={buyerId}&idLot={pres.currLot.IdLot}");
+                        }
+                    }
+                    response.EnsureSuccessStatusCode();
+
+                    var json = await response.Content.ReadAsStringAsync();
+                    Close();
+                    await RefreshCartData(main.currentUserId);
+                    MessageBox.Show(json);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Ошибка загрузки данных: {ex.Message}");
+                }
             }
+        }
 
-            using var client = new HttpClient();
-            client.BaseAddress = new Uri("http://localhost:3000/");
-            HttpResponseMessage response = null;
-
-            try
+        private async Task RefreshCartData(int userId)
+        {
+            if (Application.Current.MainWindow is MainWindow main)
             {
-                response = await client.DeleteAsync($"api/NFT/RemoveLotToCart?idUser={buyerId}&idLot={currLotId}");
-                response.EnsureSuccessStatusCode();
+                if (main.main_frame.Content is ProfilePage prof)
+                {
+                    var updatedUserInfo = await prof.GetFullInfoOfUser(userId);
+                    prof.userInfo = updatedUserInfo;
 
-                var json = await response.Content.ReadAsStringAsync();
+                    if (prof.flagCart)
+                    {
+                        prof.ItemsList.ItemsSource = updatedUserInfo.CartUser?.ToList();
+                    }
+                    else
+                    {
+                        prof.ItemsList.ItemsSource = updatedUserInfo.PresentsUser.OrderByDescending(p => p.DateUpgradePresent).ToList();
+                    }
 
-                MessageBox.Show(json);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка загрузки данных: {ex.Message}");
+                    prof.DataContext = updatedUserInfo;
+                }
             }
         }
     }

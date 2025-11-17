@@ -44,7 +44,7 @@
                        FontFamily="{StaticResource AgdasimaReg}"
                        FontSize="20"
                        Foreground="WhiteSmoke"
-                       Text="{Binding PresentName}"/>
+                       Text="{Binding _collectionName}"/>
             
             <TextBlock x:Name="lotPresentID"
    Grid.Row="3"
@@ -54,7 +54,7 @@
    FontFamily="{StaticResource AgdasimaReg}"
    FontSize="16"
    Foreground="WhiteSmoke"
-   Text="{Binding DisplayNum}"/>
+   Text="{Binding displayNum}"/>
 
             <Grid Grid.Row="4"
                   Grid.Column="1">

@@ -21,7 +21,7 @@
         public float? BalanceUser { get; set; }
 
         public List<presentDTO> PresentsUser { get; set; }
-        public List<LotDTO> CartUser {  get; set; }
+        public List<presentDTO> CartUser {  get; set; }
         public List<LotDTO> LotsUser { get; set; }
         public List<transactionDTO> TransactionUser { get; set; }
     }

@@ -1,4 +1,5 @@
-﻿using Moon_nft_application.Models;
+﻿using Moon_nft_api.DTOs;
+using Moon_nft_application.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -25,7 +26,7 @@ namespace Moon_nft_application.Elements
     public partial class buyNonUpPresentModal : Window
     {
         public int _currUserId = -1;
-        public List<Presentcollection> NonUpgradedPresents;
+        public List<collectionDTO> NonUpgradedPresents;
         public buyNonUpPresentModal(int _id)
         {
             InitializeComponent();
@@ -47,7 +48,7 @@ namespace Moon_nft_application.Elements
             
         }
 
-        public async Task<List<Presentcollection>> LoadAllNonUpPresents()
+        public async Task<List<collectionDTO>> LoadAllNonUpPresents()
         {
             using var client = new HttpClient();
             client.BaseAddress = new Uri("http://localhost:3000/");
@@ -58,7 +59,7 @@ namespace Moon_nft_application.Elements
                 response.EnsureSuccessStatusCode();
 
                 var json = await response.Content.ReadAsStringAsync();
-                var result = JsonSerializer.Deserialize<List<Presentcollection>>(
+                var result = JsonSerializer.Deserialize<List<collectionDTO>>(
                     json,
                     new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
                 );
@@ -68,7 +69,7 @@ namespace Moon_nft_application.Elements
             catch (Exception ex)
             {
                 MessageBox.Show($"Ошибка загрузки данных: {ex.Message}");
-                return new List<Presentcollection>();
+                return new List<collectionDTO>();
             }
         }
 
@@ -98,7 +99,7 @@ namespace Moon_nft_application.Elements
             using var client = new HttpClient();
             client.BaseAddress = new Uri("http://localhost:3000/");
 
-            var requestData = new PurchaseRequest
+            var requestData = new Moon_nft_api.DTOs.PurchaseRequest
             {
                 CollectionId = collectionId,
                 UserId = _currUserId

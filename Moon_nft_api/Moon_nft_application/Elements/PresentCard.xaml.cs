@@ -47,7 +47,7 @@ namespace Moon_nft_application.Elements
                     return;
                 }
             }
-            if (DataContext is Lot lot)
+            if (DataContext is LotDTO lot)
             {
                 lotId = lot.IdLot;
             }
@@ -59,7 +59,6 @@ namespace Moon_nft_application.Elements
             try
             {
                 response = await client.PutAsync($"api/NFT/AddLotToCart?idUser={buyerId}&idLot={lotId}", null);
-                response.EnsureSuccessStatusCode();
 
                 var json = await response.Content.ReadAsStringAsync();
 
@@ -93,7 +92,7 @@ namespace Moon_nft_application.Elements
                     return;
                 }
             }
-            if (DataContext is Lot lot)
+            if (DataContext is LotDTO lot)
             {
                 lotId = lot.IdLot;
             }
@@ -145,7 +144,7 @@ namespace Moon_nft_application.Elements
             if (sender is Border clickedBorder)
             {
                 var LotInfo = clickedBorder.DataContext as LotDTO;
-                Present present = await GetFullInfoOfPresent(LotInfo.IdPresent);
+                presentDTO present = await GetFullInfoOfPresent(LotInfo.IdPresent);
                 if (Application.Current.MainWindow is MainWindow main)
                 {
                     var modalPresent = new PresentModal(present, false, LotInfo.IdLot);
@@ -156,7 +155,7 @@ namespace Moon_nft_application.Elements
             }
         }
 
-        public async Task<Present> GetFullInfoOfPresent(int _currPresentId)
+        public async Task<presentDTO> GetFullInfoOfPresent(int _currPresentId)
         {
             using var client = new HttpClient();
             client.BaseAddress = new Uri("http://localhost:3000/");
@@ -167,7 +166,7 @@ namespace Moon_nft_application.Elements
                 response.EnsureSuccessStatusCode();
 
                 var json = await response.Content.ReadAsStringAsync();
-                var result = JsonSerializer.Deserialize<Present>(
+                var result = JsonSerializer.Deserialize<presentDTO>(
                     json,
                     new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
                 );
@@ -177,7 +176,7 @@ namespace Moon_nft_application.Elements
             catch (Exception ex)
             {
                 MessageBox.Show($"Ошибка загрузки данных: {ex.Message}");
-                return new Present() { DescPresent = "Ошибка при загрузке пользователя" };
+                return new presentDTO() { CollectionName = "Ошибка при загрузке пользователя" };
             }
         }
     }

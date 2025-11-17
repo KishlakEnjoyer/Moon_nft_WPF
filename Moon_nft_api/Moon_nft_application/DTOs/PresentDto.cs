@@ -32,5 +32,7 @@
 
         public float? priceLotPresent { get; set; }
 
+        public LotDTO? currLot { get; set; }
+
     }
 }

@@ -81,10 +81,9 @@
                     Cursor="Hand"
                     MouseLeftButtonDown="adminBtn_MouseLeftButtonDown"
                     Visibility="Collapsed">
-                <Image Source="../Resources/Icons/image 18.png"
-                       Height="40"
-                       Width="40"
-                       />
+                <TextBlock Text="Admin"
+                           Foreground="White"
+                           FontSize="28"/>
             </Border>
             
             
@@ -151,29 +150,34 @@
                    Text="Ваши подарки"/>
 
         <!-- Ваши подарки -->
-        <ItemsControl x:Name="ItemsList"
-        ItemsSource="{Binding PresentOwneridPresentNavigations}" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="6">
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <WrapPanel Orientation="Horizontal"/>
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
+        <ScrollViewer Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="6"
+              VerticalScrollBarVisibility="Auto"
+              HorizontalScrollBarVisibility="Disabled">
+            <ItemsControl x:Name="ItemsList"
+                  ItemsSource="{Binding PresentsUser}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
 
-            <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                    <Border CornerRadius="15"
-                            Margin="5"
-                            Width="170"
-                            Height="170" BorderBrush="#FF3F3F3F"
-                            BorderThickness="2"
-                            Cursor="Hand"
-                            MouseLeftButtonDown="mypresent_MouseLeftButtonDown_1">
-                        <Border.Background>
-                            <ImageBrush ImageSource="{Binding ImagePresent, Converter={StaticResource ByteArrayToImageConverter}}"/>
-                        </Border.Background>
-                    </Border>
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-        </ItemsControl>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border CornerRadius="15"
+                        Margin="5"
+                        Width="170"
+                        Height="170" 
+                        BorderBrush="#FF3F3F3F"
+                        BorderThickness="2"
+                        Cursor="Hand"
+                        MouseLeftButtonDown="mypresent_MouseLeftButtonDown_1">
+                            <Border.Background>
+                                <ImageBrush ImageSource="{Binding ImagePresent, Converter={StaticResource ByteArrayToImageConverter}}"/>
+                            </Border.Background>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
     </Grid>
 </Page>

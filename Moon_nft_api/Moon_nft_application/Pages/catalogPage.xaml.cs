@@ -33,8 +33,8 @@ namespace Moon_nft_application.Pages
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        private List<Model> _allModels = new();
-        private List<Presentcollection> _allCollections = new();
+        private List<modelDTO> _allModels = new();
+        private List<collectionDTO> _allCollections = new();
         private ObservableCollection<LotDTO> _allLots = new();
         public ObservableCollection<LotDTO> AllLots
         {
@@ -45,8 +45,8 @@ namespace Moon_nft_application.Pages
                 OnPropertyChanged();
             }
         }
-        private List<Background> _allBackgrounds = new();
-        private List<Symbol> _allSymbols = new();
+        private List<bgDTO> _allBackgrounds = new();
+        private List<symbolDTO> _allSymbols = new();
         private bool _isInitialized = false;
         private readonly HttpClient _httpClient = new();
 
@@ -77,16 +77,16 @@ namespace Moon_nft_application.Pages
 
         private void SetupFilters()
         {
-            var collectionsWithPlaceholder = new List<Presentcollection> { new Presentcollection { IdPresentCollections = 0, NamePresentCollection = "Все коллекции" } };
+            var collectionsWithPlaceholder = new List<collectionDTO> { new collectionDTO { IdPresentCollections = 0, NamePresentCollection = "Все коллекции" } };
             collectionsWithPlaceholder.AddRange(_allCollections);
 
-            var bgsWithPlaceholder = new List<Background> { new Background { IdBackground = 0, NameBackground = "Все фоны" } };
+            var bgsWithPlaceholder = new List<bgDTO> { new bgDTO { IdBackground = 0, NameBackground = "Все фоны" } };
             bgsWithPlaceholder.AddRange(_allBackgrounds);
 
-            var symbolsWithPlaceholder = new List<Symbol> { new Symbol { IdSymbol = 0, NameSymbol = "Все узоры" } };
+            var symbolsWithPlaceholder = new List<symbolDTO> { new symbolDTO { IdSymbol = 0, NameSymbol = "Все узоры" } };
             symbolsWithPlaceholder.AddRange(_allSymbols);
 
-            var modelsWithPlaceholder = new List<Model> { new Model { IdModel = 0, NameModel = "Все модели" } };
+            var modelsWithPlaceholder = new List<modelDTO> { new modelDTO { IdModel = 0, NameModel = "Все модели" } };
             modelsWithPlaceholder.AddRange(_allModels);
 
             filterVid.ItemsSource = collectionsWithPlaceholder;
@@ -121,83 +121,83 @@ namespace Moon_nft_application.Pages
             }
         }
 
-        private async Task<List<Presentcollection>> LoadAllVid()
+        private async Task<List<collectionDTO>> LoadAllVid()
         {
             try
             {
                 var response = await _httpClient.GetAsync("http://localhost:3000/api/NFT/GetAllPresentVid");
                 response.EnsureSuccessStatusCode();
                 var json = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<List<Presentcollection>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new List<Presentcollection>();
+                return JsonSerializer.Deserialize<List<collectionDTO>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new List<collectionDTO>();
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Ошибка загрузки коллекций: {ex.Message}");
-                return new List<Presentcollection>();
+                return new List<collectionDTO>();
             }
         }
 
-        private async Task<List<Background>> LoadAllBg()
+        private async Task<List<bgDTO>> LoadAllBg()
         {
             try
             {
                 var response = await _httpClient.GetAsync("http://localhost:3000/api/NFT/GetAllBG");
                 response.EnsureSuccessStatusCode();
                 var json = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<List<Background>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new List<Background>();
+                return JsonSerializer.Deserialize<List<bgDTO>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new List<bgDTO>();
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Ошибка загрузки фонов: {ex.Message}");
-                return new List<Background>();
+                return new List<bgDTO>();
             }
         }
 
-        private async Task<List<Symbol>> LoadAllSymbols()
+        private async Task<List<symbolDTO>> LoadAllSymbols()
         {
             try
             {
                 var response = await _httpClient.GetAsync("http://localhost:3000/api/NFT/GetAllSym");
                 response.EnsureSuccessStatusCode();
                 var json = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<List<Symbol>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new List<Symbol>();
+                return JsonSerializer.Deserialize<List<symbolDTO>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new List<symbolDTO>();
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Ошибка загрузки узоров: {ex.Message}");
-                return new List<Symbol>();
+                return new List<symbolDTO>();
             }
         }
 
-        private async Task<Presentcollection> LoadModelsForCollection(int currCollId)
+        private async Task<collectionDTO> LoadModelsForCollection(int currCollId)
         {
             try
             {
                 var response = await _httpClient.GetAsync($"http://localhost:3000/api/NFT/GetAllModelsForCollection?idCurrColl={currCollId}");
                 response.EnsureSuccessStatusCode();
                 var json = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<Presentcollection>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new Presentcollection();
+                return JsonSerializer.Deserialize<collectionDTO>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new collectionDTO();
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Ошибка загрузки моделей коллекции: {ex.Message}");
-                return new Presentcollection();
+                return new collectionDTO();
             }
         }
 
-        private async Task<List<Model>> LoadAllModels()
+        private async Task<List<modelDTO>> LoadAllModels()
         {
             try
             {
                 var response = await _httpClient.GetAsync("http://localhost:3000/api/NFT/GetAllModels");
                 response.EnsureSuccessStatusCode();
                 var json = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<List<Model>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new List<Model>();
+                return JsonSerializer.Deserialize<List<modelDTO>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new List<modelDTO>();
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Ошибка загрузки всех моделей: {ex.Message}");
-                return new List<Model>();
+                return new List<modelDTO>();
             }
         }
 
@@ -229,17 +229,17 @@ namespace Moon_nft_application.Pages
         {
             if (!_isInitialized || filterVid.SelectedItem == null) return;
 
-            if (filterVid.SelectedItem is Presentcollection selected && selected.IdPresentCollections != 0)
+            if (filterVid.SelectedItem is collectionDTO selected && selected.IdPresentCollections != 0)
             {
                 var collection = await LoadModelsForCollection(selected.IdPresentCollections);
-                var models = new List<Model> { new Model { IdModel = 0, NameModel = "Все модели" } };
-                models.AddRange(collection?.IdModels ?? new List<Model>());
+                var models = new List<modelDTO> { new modelDTO { IdModel = 0, NameModel = "Все модели" } };
+                models.AddRange((IEnumerable<modelDTO>)collection);
                 filterModel.ItemsSource = models;
                 filterModel.SelectedIndex = 0;
             }
             else
             {
-                var models = new List<Model> { new Model { IdModel = 0, NameModel = "Все модели" } };
+                var models = new List<modelDTO> { new modelDTO { IdModel = 0, NameModel = "Все модели" } };
                 models.AddRange(_allModels);
                 filterModel.ItemsSource = models;
                 filterModel.SelectedIndex = 0;

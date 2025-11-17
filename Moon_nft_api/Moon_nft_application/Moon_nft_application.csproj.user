@@ -13,6 +13,9 @@
     <Compile Update="Elements\buyNonUpPresentModal.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="Elements\historyModal.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Elements\PresentCard.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -31,6 +34,9 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Elements\buyNonUpPresentModal.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Elements\historyModal.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Elements\PresentCard.xaml">

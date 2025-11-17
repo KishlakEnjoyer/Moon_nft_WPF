@@ -50,7 +50,7 @@
                 </Border.Background>
             </Border>
 
-            <TextBlock Text="{Binding IdPresentCollectionNavigation.NamePresentCollection}"
+            <TextBlock Text="{Binding CollectionName}"
                        Grid.Row="2"
                        Grid.Column="1"
                        HorizontalAlignment="Center"
@@ -58,7 +58,7 @@
                        FontSize="30"
                        Foreground="WhiteSmoke"/>
 
-            <TextBlock Text="{Binding NumPresent, StringFormat='#{0}'}"
+            <TextBlock Text="{Binding displayNum}"
                        Grid.Row="3"
                        Grid.Column="1"
                        HorizontalAlignment="Center"
@@ -93,7 +93,7 @@
                                Foreground="#AAAAAA"
                                FontWeight="SemiBold"
                                VerticalAlignment="Center"/>
-                    <TextBlock Text="{Binding OwneridPresentNavigation.NicknameUser}" 
+                    <TextBlock Text="{Binding OwnernamePresent}" 
                                Grid.Row="0" Grid.Column="1"
                                Margin="5,5,10,5"
                                Foreground="White"
@@ -106,7 +106,7 @@
                                Foreground="#AAAAAA"
                                FontWeight="SemiBold"
                                VerticalAlignment="Center"/>
-                    <TextBlock Text="{Binding IdModelNavigation.NameModel}" 
+                    <TextBlock Text="{Binding ModelName}" 
                                Grid.Row="1" Grid.Column="1"
                                Margin="5,5,10,5"
                                Foreground="White"
@@ -119,7 +119,7 @@
                                Foreground="#AAAAAA"
                                FontWeight="SemiBold"
                                VerticalAlignment="Center"/>
-                    <TextBlock Text="{Binding IdBackgroundNavigation.NameBackground}"
+                    <TextBlock Text="{Binding BackgroundName}"
                                Grid.Row="2" Grid.Column="1"
                                Margin="5,5,10,5"
                                Foreground="White"
@@ -132,21 +132,8 @@
                                Foreground="#AAAAAA"
                                FontWeight="SemiBold"
                                VerticalAlignment="Center"/>
-                    <TextBlock Text="{Binding IdSymbolNavigation.NameSymbol}"
+                    <TextBlock Text="{Binding SymbolName}"
                                Grid.Row="3" Grid.Column="1"
-                               Margin="5,5,10,5"
-                               Foreground="White"
-                               VerticalAlignment="Center"/>
-
-                    <!-- Строка 5: Кол-во -->
-                    <TextBlock Text="Кол-во" 
-                               Grid.Row="4" Grid.Column="0"
-                               Margin="10,5,5,5"
-                               Foreground="#AAAAAA"
-                               FontWeight="SemiBold"
-                               VerticalAlignment="Center"/>
-                    <TextBlock Text="{Binding displayNum}"
-                               Grid.Row="4" Grid.Column="1"
                                Margin="5,5,10,5"
                                Foreground="White"
                                VerticalAlignment="Center"/>
@@ -217,13 +204,24 @@
             </StackPanel>
             
             <!-- Это для профиля и корзины своей -->
-            <Button x:Name="deleteFromCartBtn"
-                    Grid.Row="5"
-                    Grid.Column="1"
-                    Content="Удалить из корзины"
-                    Click="deleteFromCartBtn_Click"
-                    Visibility="Collapsed"
-                    />
+            <StackPanel Grid.Row="5"
+                        Grid.Column="1"
+                        Orientation="Vertical"
+                        Visibility="Collapsed"
+                        x:Name="cartView">
+                <Button x:Name="deleteFromCartBtn"
+                        Content="Удалить из корзины"
+                        Click="deleteFromCartBtn_Click"
+                        Visibility="Visible"
+                        />
+                <Button x:Name="buyFromCartBtn"
+                        Margin="0 30 0 0"
+                        Content="{Binding priceLotPresent, StringFormat='Купить за {0} TON'}"
+                        Click="buyModalbtn_Click"
+                        Visibility="Visible" Cursor="Hand"
+                        />
+            </StackPanel>
+            
 
             <!-- Это крч для каталога тут купить или в корзину добавить -->
             <Grid x:Name="inCatalogGrid"
@@ -240,7 +238,7 @@
             Background="#232426"
             Foreground="White"
             BorderBrush="#444444"
-            Content="{Binding Lot.PriceLot, StringFormat='Купить за {0} TON'}"
+            Content="{Binding priceLotPresent, StringFormat='Купить за {0} TON'}"
             VerticalAlignment="Center"
             HorizontalAlignment="Stretch"
                         Grid.Column="0"

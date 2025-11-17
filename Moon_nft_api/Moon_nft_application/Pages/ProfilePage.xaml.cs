@@ -19,6 +19,7 @@ using Moon_nft_application.Scripts;
 using Moon_nft_api.Services;
 using Moon_nft_application.Elements;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Moon_nft_api.DTOs;
 
 namespace Moon_nft_application.Pages
 {
@@ -31,7 +32,7 @@ namespace Moon_nft_application.Pages
 
         public bool flagCart = false;
 
-        public User userInfo = null;
+        public UserDTO userInfo = null;
         public ProfilePage(int currentUserId)
         {
             InitializeComponent();
@@ -41,13 +42,18 @@ namespace Moon_nft_application.Pages
         private async void Page_Loaded(object sender, RoutedEventArgs e)
         {
             userInfo = await GetFullInfoOfUser(currUserId);
+            userInfo.PresentsUser = userInfo.PresentsUser.OrderByDescending(p => p.DateUpgradePresent).ToList();
             if (userInfo != null) 
             {   
                 DataContext = userInfo;
             }
+            if (userInfo.RoleUser == "Admin")
+            {
+                adminBtn.Visibility = Visibility.Visible;
+            }
         }
 
-        public async Task<User> GetFullInfoOfUser(int currentUserId)
+        public async Task<UserDTO> GetFullInfoOfUser(int currentUserId)
         {
             using var client = new HttpClient();
             client.BaseAddress = new Uri("http://localhost:3000/");
@@ -58,17 +64,17 @@ namespace Moon_nft_application.Pages
                 response.EnsureSuccessStatusCode();
 
                 var json = await response.Content.ReadAsStringAsync();
-                var result = JsonSerializer.Deserialize<User>(
+                var result = JsonSerializer.Deserialize<UserDTO>(
                     json,
                     new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
                 );
 
-                return result ?? new User() { NicknameUser = "Ошибка при загрузке пользователя" };
+                return result ?? new UserDTO() { NicknameUser = "Ошибка при загрузке пользователя" };
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Ошибка загрузки данных: {ex.Message}");
-                return new User() { NicknameUser = "Ошибка при загрузке пользователя" };
+                return new UserDTO() { NicknameUser = "Ошибка при загрузке пользователя" };
             }
         }
 
@@ -84,7 +90,12 @@ namespace Moon_nft_application.Pages
 
         private void historyBtn_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-
+            if (Application.Current.MainWindow is MainWindow main)
+            {
+                var modalHistory = new historyModal();
+                modalHistory.Owner = main;
+                modalHistory.ShowDialog();
+            }
         }
 
         private void cartBtn_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -92,13 +103,13 @@ namespace Moon_nft_application.Pages
             if (!flagCart)
             {
                 PresentTitles.Text = "Корзина";
-                ItemsList.ItemsSource = userInfo.IdLots.Where(l => l.StatusLot == "Active").Select(ul => ul.IdPresentNavigation).ToList();
+                ItemsList.ItemsSource = userInfo.CartUser.ToList();
                 flagCart = true;
             }
             else
             {
                 PresentTitles.Text = "Ваши подарки";
-                ItemsList.ItemsSource = userInfo.PresentOwneridPresentNavigations;
+                ItemsList.ItemsSource = userInfo.PresentsUser;
                 flagCart = false;
             }
 
@@ -124,7 +135,7 @@ namespace Moon_nft_application.Pages
         {
             if (sender is Border clickedBorder)
             {
-                var presentData = clickedBorder.DataContext as Present;
+                var presentData = clickedBorder.DataContext as presentDTO;
                 if (Application.Current.MainWindow is MainWindow main)
                 {
                     var modalPresent = new PresentModal(presentData, true, flagCart);
@@ -134,5 +145,7 @@ namespace Moon_nft_application.Pages
                 
             }
         }
+
+        
     }
 }

@@ -3,11 +3,11 @@ using Moon_nft_api.Models;
 using Moon_nft_api.DTOs;
 using Moon_nft_api.Services;
 using Microsoft.EntityFrameworkCore;
-using SixLabors.ImageSharp; // Для Image<Rgba32>, Color
-using SixLabors.ImageSharp.PixelFormats; // Для Rgba32
-using SixLabors.ImageSharp.Processing; // <--- ЭТА СТРОКА НУЖНА ДЛЯ .Translate, .RotateDegrees и т.д.
-using SixLabors.ImageSharp.Formats.Png; // Для PngFormat
-using System.Numerics; // Для Matrix3x2 (если используется где-то ещё)
+using SixLabors.ImageSharp; 
+using SixLabors.ImageSharp.PixelFormats; 
+using SixLabors.ImageSharp.Processing; 
+using SixLabors.ImageSharp.Formats.Png; 
+using System.Numerics;
 
 
 namespace Moon_nft_api.Controllers
@@ -78,52 +78,64 @@ namespace Moon_nft_api.Controllers
         {
             try
             {
-                var currLot = MoonNftDbContext.GetContext.Lots.FirstOrDefault(l => l.IdLot == idLot);
+                var currLot = MoonNftDbContext.GetContext.Lots
+                    .Include(l => l.IdUsers) 
+                    .FirstOrDefault(l => l.IdLot == idLot);
+
+                if (currLot == null)
+                {
+                    return BadRequest("Лот не найден!");
+                }
+
                 if (currLot.IdSaler == buyerId)
                 {
                     return BadRequest("Покупка не удалась. Это ваш подарок.");
                 }
-                if (currLot != null)
+
+                var buyer = MoonNftDbContext.GetContext.Users.FirstOrDefault(u => u.IdUser == buyerId);
+                var saler = MoonNftDbContext.GetContext.Users.FirstOrDefault(u => u.IdUser == currLot.IdSaler);
+                var present = MoonNftDbContext.GetContext.Presents.FirstOrDefault(p => p.IdPresent == currLot.IdPresent);
+
+                if (buyer == null || saler == null || present == null)
                 {
-                    var buyer = MoonNftDbContext.GetContext.Users.FirstOrDefault(u => u.IdUser == buyerId);
-                    var saler = MoonNftDbContext.GetContext.Users.FirstOrDefault(u => u.IdUser == currLot.IdSaler);
-                    var present = MoonNftDbContext.GetContext.Presents.FirstOrDefault(p => p.IdPresent == currLot.IdPresent);
-
-                    if (buyer.BalanceUser >= currLot.PriceLot)
-                    {
-                        buyer.BalanceUser -= currLot.PriceLot;
-                    }
-                    else
-                    {
-                        return BadRequest("У вас не хватает баланса!");
-                    }
-
-                    present.OwneridPresent = buyerId;
-                    if (saler is not null)
-                    {
-                        saler.BalanceUser += (float?)(currLot.PriceLot * 0.94);
-                    }
-
-                    MoonNftDbContext.GetContext.Lots.Remove(currLot);
-                    MoonNftDbContext.GetContext.Transactions.Add(new Transaction()
-                    {
-                        IdSaler = saler.IdUser,
-                        IdBuyer = buyerId,
-                        IdPresent = present.IdPresent,
-                        DateTransaction = DateOnly.FromDateTime(DateTime.Today),
-                        SumTransaction = (float)currLot.PriceLot
-                    });
-
-
-                    MoonNftDbContext.GetContext.SaveChanges();
-
-                    return Ok("Покупка совершена успешно!");
+                    return BadRequest("Не найдены связанные данные!");
                 }
-                return BadRequest("Покупка не удалась!");
+
+                if (buyer.BalanceUser < currLot.PriceLot)
+                {
+                    return BadRequest("У вас не хватает баланса!");
+                }
+
+                if (currLot.IdUsers != null)
+                {
+                    foreach (var user in currLot.IdUsers.ToList())
+                    {
+                        currLot.IdUsers.Remove(user);
+                    }
+                }
+
+                buyer.BalanceUser -= currLot.PriceLot;
+                present.OwneridPresent = buyerId;
+                saler.BalanceUser += (float?)(currLot.PriceLot * 0.94);
+
+                MoonNftDbContext.GetContext.Transactions.Add(new Transaction()
+                {
+                    IdSaler = saler.IdUser,
+                    IdBuyer = buyerId,
+                    IdPresent = present.IdPresent,
+                    DateTransaction = DateOnly.FromDateTime(DateTime.Today),
+                    SumTransaction = (float)currLot.PriceLot
+                });
+
+                MoonNftDbContext.GetContext.Lots.Remove(currLot);
+
+                MoonNftDbContext.GetContext.SaveChanges();
+
+                return Ok("Покупка совершена успешно!");
             }
-            catch
+            catch (Exception ex)
             {
-                return BadRequest("Покупка не удалась!");
+                return BadRequest($"Покупка не удалась! {ex.Message}");
             }
         }
 
@@ -147,12 +159,12 @@ namespace Moon_nft_api.Controllers
 
                 if (currUser.IdUser == currLot.IdSaler)
                 {
-                    return BadRequest(new { message = "Это ваш лот, в корзину добавить не получится!" });
+                    return BadRequest("Это ваш лот, в корзину добавить не получится!");
                 }
 
                 if (currUser.IdLots.Contains(currLot))
                 {
-                    return BadRequest(new { message = "Лот уже в корзине!" });
+                    return BadRequest("Лот уже в корзине!");
                 }
 
                 currUser.IdLots.Add(currLot);
@@ -220,23 +232,27 @@ namespace Moon_nft_api.Controllers
         }
 
         [HttpGet("GetAllModelsForCollection")]
-        public Presentcollection getAllModels(int idCurrColl)
+        public collectionDTO getAllModels(int idCurrColl)
         {
             try
             {
                 var context = MoonNftDbContext.GetContext;
                 var collection = context.Presentcollections
                     .Where(c => c.IdPresentCollections == idCurrColl)
-                    .Select(c => new Presentcollection
+                    .Select(c => new collectionDTO
                     {
-                        IdModels = c.IdModels
-                    })
-                    .FirstOrDefault();
-                return collection ?? new Presentcollection();
+                        Models = (modelDTO[])c.IdModels.Select(m => new modelDTO
+                        {
+                            IdModel = m.IdModel,
+                            NameModel = m.NameModel,
+                            ImageModel = m.ImageModel
+                        })
+                    }).FirstOrDefault();
+                return collection ?? new collectionDTO();
             }
             catch
             {
-                return new Presentcollection();
+                return new collectionDTO();
             }
         }
 
@@ -322,8 +338,10 @@ namespace Moon_nft_api.Controllers
                     {
                         IdLot = l.IdLot,
                         IdPresent = l.IdPresent,
+                        ImagePresent = l.IdPresentNavigation.ImagePresent,
                         _collectionId = l.IdPresentNavigation.IdPresentCollection,
                         _collectionName = l.IdPresentNavigation.IdPresentCollectionNavigation.NamePresentCollection,
+                        displayNum = l.IdPresentNavigation.displayNum,
                         _modelId = l.IdPresentNavigation.IdModel ?? 0,
                         _modelName = l.IdPresentNavigation.IdModelNavigation.NameModel,
                         _bgId = l.IdPresentNavigation.IdBackground ?? 0,
@@ -488,16 +506,13 @@ namespace Moon_nft_api.Controllers
             if (randomSymbol.ImageSymbol == null || randomSymbol.ImageSymbol.Length == 0)
                 return BadRequest("Изображение символа отсутствует.");
 
-            // Цвет фона (преобразование System.Drawing.Color в ImageSharp.Color)
             string bgcolor = randomBg.ColorBackground;
             System.Drawing.Color sysColor = bgService.HexToColor(bgcolor);
             var backgroundColor = SixLabors.ImageSharp.Color.FromRgb(sysColor.R, sysColor.G, sysColor.B);
 
-            // Размеры результата
             int width = 800;
             int height = 800;
 
-            // Объявляем переменные изображений
             Image<Rgba32>? imgModel = null;
             Image<Rgba32>? imgSymbol = null;
             Image<Rgba32>? resultImage = null;
@@ -510,7 +525,6 @@ namespace Moon_nft_api.Controllers
                 using var symbolStream = new MemoryStream(randomSymbol.ImageSymbol);
                 imgSymbol = Image.Load<Rgba32>(symbolStream);
 
-                // Масштабируем узор
                 int symbolWidth = 150;
                 int symbolHeight = 150;
                 int stepX = 250;
@@ -518,62 +532,57 @@ namespace Moon_nft_api.Controllers
 
                 var scaledSymbol = imgSymbol.Clone(ctx => ctx.Resize(symbolWidth, symbolHeight));
 
-                // Настройка прозрачности для символа
                 var symbolWithTransparency = scaledSymbol.Clone();
                 symbolWithTransparency.Mutate(ctx => ctx.ProcessPixelRowsAsVector4(pixelRow =>
                 {
                     for (int i = 0; i < pixelRow.Length; i++)
                     {
                         ref var pixel = ref pixelRow[i];
-                        // Устанавливаем альфа-канал на 50% (0.5f)
                         pixel.W *= 0.5f;
                     }
                 }));
 
-                // Создаём результатное изображение
                 resultImage = new Image<Rgba32>(width, height);
-                resultImage.Mutate(ctx => ctx.BackgroundColor(backgroundColor)); // Заливаем фон
+                resultImage.Mutate(ctx => ctx.BackgroundColor(backgroundColor));
 
-                // Рисуем сетку символов (исправленная версия)
                 int offsetX = 50;
                 int offsetY = 50;
+
+                // Создаем повернутый символ один раз
+                using var rotatedSymbol = new Image<Rgba32>(symbolWidth * 2, symbolHeight * 2); // Увеличиваем canvas для вращения
+                rotatedSymbol.Mutate(ctx => ctx.BackgroundColor(SixLabors.ImageSharp.Color.Transparent));
+
+                // Рисуем символ в центре увеличенного canvas и поворачиваем
+                rotatedSymbol.Mutate(ctx =>
+                {
+                    ctx.DrawImage(symbolWithTransparency,
+                        new Point((rotatedSymbol.Width - symbolWidth) / 2, (rotatedSymbol.Height - symbolHeight) / 2),
+                        1.0f);
+                    ctx.Rotate(-35f); // Поворот против часовой стрелки на 35 градусов
+                });
 
                 for (int x = offsetX; x < width - offsetX; x += stepX)
                 {
                     for (int y = offsetY; y < height - offsetY; y += stepY)
                     {
-                        // Создаем временное изображение для каждого символа с трансформацией
-                        using var transformedSymbol = new Image<Rgba32>(symbolWidth, symbolHeight);
+                        // Вычисляем смещение для центрирования повернутого символа
+                        int drawX = x - (rotatedSymbol.Width - symbolWidth) / 2;
+                        int drawY = y - (rotatedSymbol.Height - symbolHeight) / 2;
 
-                        // Заливаем прозрачным фоном
-                        transformedSymbol.Mutate(ctx => ctx.BackgroundColor(SixLabors.ImageSharp.Color.Transparent));
-
-                        // Рисуем символ с поворотом
-                        transformedSymbol.Mutate(ctx =>
-                        {
-                            // Поворачиваем на 340 градусов (20 градусов против часовой стрелки)
-                            ctx.Rotate(340f);
-                            ctx.DrawImage(symbolWithTransparency, new Point(0, 0), 1.0f);
-                        });
-
-                        // Рисуем преобразованный символ на основном изображении
-                        resultImage.Mutate(ctx => ctx.DrawImage(transformedSymbol, new Point(x, y), 1.0f));
+                        resultImage.Mutate(ctx => ctx.DrawImage(rotatedSymbol, new Point(drawX, drawY), 1.0f));
                     }
                 }
 
-                // Масштабируем модель
                 int modelWidth = imgModel.Width / 2;
                 int modelHeight = imgModel.Height / 2;
 
                 var scaledModel = imgModel.Clone(ctx => ctx.Resize(modelWidth, modelHeight));
 
-                // Центрируем модель
                 int X = (width - modelWidth) / 2;
                 int Y = (height - modelHeight) / 2;
 
                 resultImage.Mutate(ctx => ctx.DrawImage(scaledModel, new Point(X, Y), 1.0f));
 
-                // === 💾 СОХРАНЕНИЕ В БАЗУ ДАННЫХ ===
                 byte[] resultBytes;
                 using (var ms = new MemoryStream())
                 {
@@ -581,7 +590,6 @@ namespace Moon_nft_api.Controllers
                     resultBytes = ms.ToArray();
                 }
 
-                // Обновляем сущность
                 currentPresent.DateUpgradePresent = DateOnly.FromDateTime(DateTime.Today);
                 currentPresent.ImagePresent = resultBytes;
                 currentPresent.IdBackground = randomBg.IdBackground;
@@ -605,7 +613,6 @@ namespace Moon_nft_api.Controllers
             }
             finally
             {
-                // Убедимся, что изображения освобождаются
                 imgModel?.Dispose();
                 imgSymbol?.Dispose();
                 resultImage?.Dispose();
@@ -629,28 +636,46 @@ namespace Moon_nft_api.Controllers
                 return BadRequest("Подарок не является уникальным!");
             }
 
+            var existingLot = MoonNftDbContext.GetContext.Lots
+                .FirstOrDefault(l => l.IdPresent == _presentId && l.StatusLot == "Active");
+
+            if (existingLot != null)
+            {
+                return BadRequest("Этот подарок уже выставлен на продажу!");
+            }
+
             var newLot = new Lot()
             {
                 IdPresent = currPresent.IdPresent,
                 IdSaler = currPresent.OwneridPresent,
                 PriceLot = _priceLot,
                 StatusLot = "Active"
-            };  
+            };
 
             MoonNftDbContext.GetContext.Lots.Add(newLot);
             MoonNftDbContext.GetContext.SaveChanges();
 
-            return Ok();
+            return Ok("Лот успешно создан!");
         }
 
         [HttpPost("TurnOffLot")]
         public IActionResult TurnOffLot(int _presentId)
         {
-            var _currlot = MoonNftDbContext.GetContext.Lots.FirstOrDefault(l => l.IdPresent == _presentId && l.StatusLot == "Active");
+            var _currlot = MoonNftDbContext.GetContext.Lots
+                .Include(l => l.IdUsers) 
+                .FirstOrDefault(l => l.IdPresent == _presentId && l.StatusLot == "Active");
 
             if (_currlot is null)
             {
                 return BadRequest("Такого лота не существует");
+            }
+
+            if (_currlot.IdUsers != null)
+            {
+                foreach (var user in _currlot.IdUsers.ToList())
+                {
+                    _currlot.IdUsers.Remove(user);
+                }
             }
 
             MoonNftDbContext.GetContext.Lots.Remove(_currlot);

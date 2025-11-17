@@ -267,23 +267,27 @@ Padding="{TemplateBinding Padding}">
                        Foreground="WhiteSmoke"
                        FontSize="40"/>
         </Border>
-        
-        <ItemsControl x:Name="ItemsList"
-      ItemsSource="{Binding AllLots}" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="6">
-            <!-- Привязка к коллекции в ViewModel -->
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <!-- Сетка с 6 колонками -->
-                    <WrapPanel Orientation="Horizontal"/>
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
+        <ScrollViewer Grid.Row="1" 
+              Grid.Column="1" 
+              Grid.ColumnSpan="7"
+                      HorizontalAlignment="Center"
+              VerticalScrollBarVisibility="Auto"
+              HorizontalScrollBarVisibility="Disabled"
+              Padding="0,10,0,0">
+            <ItemsControl x:Name="ItemsList"
+                            ItemsSource="{Binding AllLots}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
 
-            <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                    <!-- Используем ваш UserControl -->
-                    <local1:PresentCard Margin="5" Width="170" Height="247"/>
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-        </ItemsControl>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <local1:PresentCard Margin="5" Width="170" Height="247"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
     </Grid>
 </Page>

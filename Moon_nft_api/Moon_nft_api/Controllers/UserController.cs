@@ -45,25 +45,9 @@ namespace Moon_nft_api.Controllers
         [HttpGet("GetFullProfileInfo")]
         public async Task<ActionResult<UserDTO>> GetFullProfileInfo(int userId)
         {
+            // Базовые данные пользователя
             var user = await MoonNftDbContext.GetContext.Users
                 .AsNoTracking()
-                .Include(u => u.TransactionIdBuyerNavigations)
-                .Include(u => u.TransactionIdSalerNavigations)
-                .Include(u => u.PresentOwneridPresentNavigations)
-                    .ThenInclude(p => p.IdPresentCollectionNavigation)
-                .Include(u => u.PresentOwneridPresentNavigations)
-                    .ThenInclude(p => p.IdModelNavigation)
-                .Include(u => u.PresentOwneridPresentNavigations)
-                    .ThenInclude(p => p.IdBackgroundNavigation)
-                .Include(u => u.PresentOwneridPresentNavigations)
-                    .ThenInclude(p => p.IdSymbolNavigation)
-                .Include(u => u.IdLots)
-                    .ThenInclude(l => l.IdPresentNavigation)
-                        .ThenInclude(p => p.IdPresentCollectionNavigation)
-                .Include(u => u.IdLots)
-                    .ThenInclude(l => l.IdSalerNavigation)
-                .Include(u => u.PresentAuthoridPresentNavigations)
-                    .ThenInclude(p => p.IdPresentCollectionNavigation)
                 .FirstOrDefaultAsync(u => u.IdUser == userId);
 
             if (user is null)
@@ -71,11 +55,11 @@ namespace Moon_nft_api.Controllers
                 return BadRequest("Такой пользователь не найден!");
             }
 
-            var activeLots = await MoonNftDbContext.GetContext.Lots
-                .Where(l => user.PresentOwneridPresentNavigations.Select(p => p.IdPresent).Contains(l.IdPresent))
-                .ToListAsync();
-
-            var userLots = await MoonNftDbContext.GetContext.Lots.Where(l => user.IdUser == l.IdSaler).ToListAsync();
+            // Последовательная загрузка (убейте Task.WhenAll)
+            var presents = await GetRequests.GetUserPresents(userId);
+            var carts = await GetRequests.GetCart(userId);
+            var lots = await GetRequests.GetUserLots(userId);
+            var transactions = await GetRequests.GetUserTransactions(userId);
 
             var userDto = new UserDTO
             {
@@ -88,83 +72,51 @@ namespace Moon_nft_api.Controllers
                 RoleUser = user.RoleUser,
                 RatingUser = user.RatingUser,
                 BalanceUser = user.BalanceUser,
-                PresentsUser = user.PresentOwneridPresentNavigations.Select(p => new presentDTO
-                {
-                    IdPresent = p.IdPresent,
-                    OwneridPresent = p.OwneridPresent,
-                    OwnernamePresent = p.OwneridPresentNavigation?.NicknameUser ?? string.Empty,
-                    IdPresentCollection = p.IdPresentCollection,
-                    CollectionName = p.IdPresentCollectionNavigation?.NamePresentCollection ?? string.Empty,
-                    IdModel = p.IdModel,
-                    ModelName = p.IdModelNavigation?.NameModel ?? string.Empty,
-                    IdBackground = p.IdBackground,
-                    BackgroundName = p.IdBackgroundNavigation?.NameBackground ?? string.Empty,
-                    IdSymbol = p.IdSymbol,
-                    SymbolName = p.IdSymbolNavigation?.NameSymbol ?? string.Empty,
-                    displayNum = p.displayNum,
-                    ImagePresent = p.ImagePresent ?? Array.Empty<byte>(),
-                    UpgradePresent = p.UpgradePresent,
-                    DateUpgradePresent = p.DateUpgradePresent,
-                    priceLotPresent = activeLots.FirstOrDefault(l => l.IdPresent == p.IdPresent)?.PriceLot
-                }).ToList(),
-                CartUser = user.IdLots.Select(l => new LotDTO
-                {
-                    IdLot = l.IdLot,
-                    IdPresent = l.IdPresent,
-                    DateUpgradePresent = l.IdPresentNavigation?.DateUpgradePresent,
-                    _collectionId = l.IdPresentNavigation?.IdPresentCollection ?? 0,
-                    _collectionName = l.IdPresentNavigation?.IdPresentCollectionNavigation?.NamePresentCollection ?? string.Empty,
-                    _modelId = l.IdPresentNavigation?.IdModel ?? 0,
-                    _modelName = l.IdPresentNavigation?.IdModelNavigation?.NameModel ?? string.Empty,
-                    _bgId = l.IdPresentNavigation?.IdBackground ?? 0,
-                    _bgName = l.IdPresentNavigation?.IdBackgroundNavigation?.NameBackground ?? string.Empty,
-                    _symbolId = l.IdPresentNavigation?.IdSymbol ?? 0,
-                    _symbolName = l.IdPresentNavigation?.IdSymbolNavigation?.NameSymbol ?? string.Empty,
-                    IdSaler = l.IdSaler,
-                    SalerNickname = l.IdSalerNavigation?.NicknameUser ?? string.Empty,
-                    PriceLot = l.PriceLot,
-                    statusLot = l.StatusLot
-                }).ToList(),
-                LotsUser = userLots.Select(l => new LotDTO
-                {
-                    IdLot = l.IdLot,
-                    IdPresent = l.IdPresent,
-                    DateUpgradePresent = l.IdPresentNavigation?.DateUpgradePresent,
-                    _collectionId = l.IdPresentNavigation?.IdPresentCollection ?? 0,
-                    _collectionName = l.IdPresentNavigation?.IdPresentCollectionNavigation?.NamePresentCollection ?? string.Empty,
-                    _modelId = l.IdPresentNavigation?.IdModel ?? 0,
-                    _modelName = l.IdPresentNavigation?.IdModelNavigation?.NameModel ?? string.Empty,
-                    _bgId = l.IdPresentNavigation?.IdBackground ?? 0,
-                    _bgName = l.IdPresentNavigation?.IdBackgroundNavigation?.NameBackground ?? string.Empty,
-                    _symbolId = l.IdPresentNavigation?.IdSymbol ?? 0,
-                    _symbolName = l.IdPresentNavigation?.IdSymbolNavigation?.NameSymbol ?? string.Empty,
-                    IdSaler = l.IdSaler,
-                    SalerNickname = l.IdSalerNavigation?.NicknameUser ?? string.Empty,
-                    PriceLot = l.PriceLot,
-                    statusLot = l.StatusLot
-                }).ToList(),
-                TransactionUser = user.TransactionIdBuyerNavigations.Select(t => new transactionDTO
-                {
-                    IdTransaction = t.IdTransaction,
-                    IdSaler = t.IdSaler,
-                    IdBuyer = t.IdBuyer,
-                    IdPresent = t.IdPresent,
-                    DateTransaction = t.DateTransaction,
-                    SumTransaction = t.SumTransaction
-                })
-                .Concat(user.TransactionIdSalerNavigations.Select(t => new transactionDTO
-                {
-                    IdTransaction = t.IdTransaction,
-                    IdSaler = t.IdSaler,
-                    IdBuyer = t.IdBuyer,
-                    IdPresent = t.IdPresent,
-                    DateTransaction = t.DateTransaction,
-                    SumTransaction = t.SumTransaction
-                }))
-                .ToList()
+                PresentsUser = presents,
+                CartUser = carts,
+                LotsUser = lots,
+                TransactionUser = transactions
             };
 
             return Ok(userDto);
+        }
+
+        [HttpGet("GetAllTransactions")]
+        public async Task<List<transactionDTO>> getAllTransactions(int userId)
+        {
+            return await MoonNftDbContext.GetContext.Transactions.Where(t => t.IdBuyer == userId).Select(t => new transactionDTO
+            {
+                IdTransaction = t.IdTransaction,
+                IdSaler = t.IdSaler,
+                NameSaler = t.IdSalerNavigation.NicknameUser,
+                IdBuyer = t.IdBuyer,
+                NameBuyer = t.IdBuyerNavigation.NicknameUser,
+                IdPresent = t.IdPresent,
+                ImagePresent = t.IdPresentNavigation.ImagePresent,
+                CollectionPresent = t.IdPresentNavigation.IdPresentCollectionNavigation.NamePresentCollection,
+                displayNum = $"#{t.IdPresentNavigation.NumPresent} / {t.IdPresentNavigation.IdPresentCollectionNavigation.LimitPresentCollection}",
+                DateTransaction = t.DateTransaction,
+                SumTransaction = t.SumTransaction
+            }).ToListAsync();
+        }
+
+        [HttpGet("GetAllSales")]
+        public async Task<List<transactionDTO>> getAllSales(int userId)
+        {
+            return await MoonNftDbContext.GetContext.Transactions.Where(t => t.IdSaler == userId).Select(t => new transactionDTO
+            {
+                IdTransaction = t.IdTransaction,
+                IdSaler = t.IdSaler,
+                NameSaler = t.IdSalerNavigation.NicknameUser,
+                IdBuyer = t.IdBuyer,
+                NameBuyer = t.IdBuyerNavigation.NicknameUser,
+                IdPresent = t.IdPresent,
+                ImagePresent = t.IdPresentNavigation.ImagePresent,
+                CollectionPresent = t.IdPresentNavigation.IdPresentCollectionNavigation.NamePresentCollection,
+                displayNum = $"#{t.IdPresentNavigation.NumPresent} / {t.IdPresentNavigation.IdPresentCollectionNavigation.LimitPresentCollection}",
+                DateTransaction = t.DateTransaction,
+                SumTransaction = t.SumTransaction
+            }).ToListAsync();
         }
 
         [HttpGet("profile")]
