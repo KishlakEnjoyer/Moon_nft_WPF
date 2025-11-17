@@ -105,10 +105,10 @@ namespace Moon_nft_application.Pages
         {
             if (!_isInitialized) return;
 
-            string collectionName = (filterVid.SelectedItem as Presentcollection)?.NamePresentCollection ?? "Все коллекции";
-            string modelName = (filterModel.SelectedItem as Model)?.NameModel ?? "Все модели";
-            string backgroundName = (filterBG.SelectedItem as Background)?.NameBackground ?? "Все фоны";
-            string symbolName = (filterSymbol.SelectedItem as Symbol)?.NameSymbol ?? "Все узоры";
+            string collectionName = (filterVid.SelectedItem as collectionDTO)?.NamePresentCollection ?? "Все коллекции";
+            string modelName = (filterModel.SelectedItem as modelDTO)?.NameModel ?? "Все модели";
+            string backgroundName = (filterBG.SelectedItem as bgDTO)?.NameBackground ?? "Все фоны";
+            string symbolName = (filterSymbol.SelectedItem as symbolDTO)?.NameSymbol ?? "Все узоры";
             string sortName = (filterSort.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Нет (Сортировка)";
             string searchQuery = searchBar?.Text ?? "";
 

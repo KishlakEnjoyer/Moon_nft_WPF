@@ -117,7 +117,7 @@ namespace Moon_nft_application.Pages
 
         private void adminBtn_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-
+            Go.to(new AdminPage());
         }
 
         private void logoutBtn_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)

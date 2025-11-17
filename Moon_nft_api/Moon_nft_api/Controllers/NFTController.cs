@@ -231,6 +231,37 @@ namespace Moon_nft_api.Controllers
             }
         }
 
+        [HttpPost("AddNewCollection")]
+        public async Task<IActionResult> AddNewCollection([FromBody] AddCollectionModel model)
+        {
+            try
+            {
+                byte[] imageBytes = null;
+                if (!string.IsNullOrEmpty(model.ImageBase64))
+                {
+                    imageBytes = Convert.FromBase64String(model.ImageBase64);
+                }
+
+                Presentcollection _collection = new Presentcollection()
+                {
+                    NamePresentCollection = model.Name,
+                    ImagePresentcollections = imageBytes,
+                    LimitPresentCollection = model.Limit,
+                    AvailableCount = model.Count,
+                    PricePresentCollection = model.Price
+                };
+
+                MoonNftDbContext.GetContext.Presentcollections.Add(_collection);
+                await MoonNftDbContext.GetContext.SaveChangesAsync();
+
+                return Ok("Коллекция добавлена!");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Какая то ошибка " + ex.Message);
+            }
+        }
+
         [HttpGet("GetAllModelsForCollection")]
         public collectionDTO getAllModels(int idCurrColl)
         {
@@ -399,6 +430,37 @@ namespace Moon_nft_api.Controllers
             catch
             {
                 return new List<LotDTO>();
+            }
+        }
+
+        [HttpGet("GetAllLotsAdmin")]
+        public List<LotDTO> getAllLotsAdmin()
+        {
+            try
+            {
+                return MoonNftDbContext.GetContext.Lots
+                    .Include(l => l.IdPresentNavigation) 
+                    .Include(l => l.IdSalerNavigation)
+                    .Select(l => new LotDTO
+                    {
+                        IdLot = l.IdLot,
+                        IdPresent = l.IdPresent,
+                        ImagePresent = l.IdPresentNavigation.ImagePresent,
+                        IdSaler = l.IdSaler,
+                        SalerNickname = l.IdSalerNavigation.NicknameUser,
+                        PriceLot = l.PriceLot
+                    })
+                    .ToList();
+            }
+            catch (Exception ex)
+            {
+                return new List<LotDTO>()
+                {
+                    new LotDTO
+                    {
+                        SalerNickname = "Ошибка " + ex.Message
+                    }
+                };
             }
         }
 
