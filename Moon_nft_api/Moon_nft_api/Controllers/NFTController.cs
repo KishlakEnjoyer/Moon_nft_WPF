@@ -272,12 +272,12 @@ namespace Moon_nft_api.Controllers
                     .Where(c => c.IdPresentCollections == idCurrColl)
                     .Select(c => new collectionDTO
                     {
-                        Models = (modelDTO[])c.IdModels.Select(m => new modelDTO
+                        Models = c.IdModels.Select(m => new modelDTO
                         {
                             IdModel = m.IdModel,
                             NameModel = m.NameModel,
                             ImageModel = m.ImageModel
-                        })
+                        }).ToList()
                     }).FirstOrDefault();
                 return collection ?? new collectionDTO();
             }
@@ -364,7 +364,6 @@ namespace Moon_nft_api.Controllers
                     .Include(l => l.IdPresentNavigation)
                         .ThenInclude(p => p.IdSymbolNavigation)
                     .Include(l => l.IdSalerNavigation) 
-                    .Where(l => l.StatusLot == "Active")
                     .Select(l => new LotDTO
                     {
                         IdLot = l.IdLot,
@@ -413,14 +412,14 @@ namespace Moon_nft_api.Controllers
                     );
                 }
 
-                if (_sort != null && _sort != "Нет (Сортировка)")
+                if (_sort != null && _sort != "По умолчанию")
                 {
                     query = _sort switch
                     {
-                        "По цене (По убыванию)" => query.OrderByDescending(l => l.PriceLot),
-                        "По цене (По возрастанию)" => query.OrderBy(l => l.PriceLot),
-                        "По дате улучшения (По убыванию)" => query.OrderByDescending(l => l.DateUpgradePresent),
-                        "По дате улучшения (По возрастанию)" => query.OrderBy(l => l.DateUpgradePresent),
+                        "По цене ↑" => query.OrderByDescending(l => l.PriceLot),
+                        "По цене ↓" => query.OrderBy(l => l.PriceLot),
+                        "По дате улучшения ↑" => query.OrderByDescending(l => l.DateUpgradePresent),
+                        "По дате улучшения ↓" => query.OrderBy(l => l.DateUpgradePresent),
                         _ => query.OrderBy(l => l.IdLot)
                     };
                 }
@@ -459,6 +458,41 @@ namespace Moon_nft_api.Controllers
                     new LotDTO
                     {
                         SalerNickname = "Ошибка " + ex.Message
+                    }
+                };
+            }
+        }
+
+        [HttpGet("GetAllTransactionsAdmin")]
+        public List<transactionDTO> getAllTransactionsAdmin() 
+        {
+            try
+            {
+                return MoonNftDbContext.GetContext.Transactions
+                    .Include(l => l.IdBuyerNavigation)
+                    .Include(l => l.IdSalerNavigation)
+                    .Include(l => l.IdPresentNavigation)
+                    .Select(l => new transactionDTO
+                    {
+                        IdTransaction = l.IdTransaction,
+                        IdPresent = l.IdPresent,
+                        ImagePresent = l.IdPresentNavigation.ImagePresent,
+                        IdSaler = l.IdSaler,
+                        NameSaler = l.IdSalerNavigation.NicknameUser,
+                        IdBuyer = l.IdBuyer,
+                        NameBuyer = l.IdBuyerNavigation.NicknameUser,
+                        DateTransaction = l.DateTransaction,
+                        SumTransaction = l.SumTransaction
+                    })
+                    .ToList();
+            }
+            catch (Exception ex)
+            {
+                return new List<transactionDTO>()
+                {
+                    new transactionDTO
+                    {
+                        NameBuyer = "Ошибка " + ex.Message
                     }
                 };
             }

@@ -61,6 +61,16 @@ AllowsTransparency="True" Loaded="Window_Loaded">
                             <GridViewColumn x:Name="salerBuyerColumn" Header="Продавец" Width="120" DisplayMemberBinding="{Binding NameSaler}" />
                             <GridViewColumn Header="Цена" Width="120" DisplayMemberBinding="{Binding SumTransaction, StringFormat='-{0} TON'}"/>
                             <GridViewColumn Header="Дата покупки" Width="150" DisplayMemberBinding="{Binding DateTransaction}"/>
+                            <GridViewColumn Header="Чек" Width="100">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Content="Чек" 
+                                Click="Button_Click" 
+                                Tag="{Binding IdTransaction}" 
+                                Width="60" Height="25"/>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
                         </GridView>
                     </ListView.View>
                 </ListView>

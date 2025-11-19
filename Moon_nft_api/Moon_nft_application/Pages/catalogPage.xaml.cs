@@ -77,6 +77,10 @@ namespace Moon_nft_application.Pages
 
         private void SetupFilters()
         {
+            if (filterVid.ItemsSource != null && filterVid.Items.Count > 0)
+                return;
+
+
             var collectionsWithPlaceholder = new List<collectionDTO> { new collectionDTO { IdPresentCollections = 0, NamePresentCollection = "Все коллекции" } };
             collectionsWithPlaceholder.AddRange(_allCollections);
 
@@ -109,7 +113,7 @@ namespace Moon_nft_application.Pages
             string modelName = (filterModel.SelectedItem as modelDTO)?.NameModel ?? "Все модели";
             string backgroundName = (filterBG.SelectedItem as bgDTO)?.NameBackground ?? "Все фоны";
             string symbolName = (filterSymbol.SelectedItem as symbolDTO)?.NameSymbol ?? "Все узоры";
-            string sortName = (filterSort.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Нет (Сортировка)";
+            string sortName = (filterSort.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "По умолчанию";
             string searchQuery = searchBar?.Text ?? "";
 
             var lots = await LoadAllLots(searchQuery, collectionName, modelName, backgroundName, symbolName, sortName);
@@ -233,7 +237,7 @@ namespace Moon_nft_application.Pages
             {
                 var collection = await LoadModelsForCollection(selected.IdPresentCollections);
                 var models = new List<modelDTO> { new modelDTO { IdModel = 0, NameModel = "Все модели" } };
-                models.AddRange((IEnumerable<modelDTO>)collection);
+                models.AddRange(collection.Models.ToList());
                 filterModel.ItemsSource = models;
                 filterModel.SelectedIndex = 0;
             }
@@ -282,5 +286,7 @@ namespace Moon_nft_application.Pages
                 modalPresent.ShowDialog();
             }
         }
+
+
     }
 }

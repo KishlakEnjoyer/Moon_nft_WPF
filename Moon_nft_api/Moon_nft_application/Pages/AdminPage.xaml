@@ -32,6 +32,7 @@
             <ComboBoxItem Content="Коллекции" Foreground="Black"/>
             <ComboBoxItem Content="Лоты" Foreground="Black"/>
         </ComboBox>
+
         <ListView x:Name="collectionsListView" 
                   Grid.Row="2"
                   ScrollViewer.HorizontalScrollBarVisibility="Disabled"
@@ -42,49 +43,333 @@
                   Foreground="White"
                   HorizontalAlignment="Stretch"
                   Visibility="Collapsed">
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                    <Setter Property="VerticalContentAlignment" Value="Center"/>
+                    <Style.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="#333333"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </ListView.ItemContainerStyle>
+
             <ListView.View>
                 <GridView>
-                    <GridViewColumn Header="№" Width="150" DisplayMemberBinding="{Binding IdPresentCollections}"/>
-                    <GridViewColumn Header="Изображение" Width="400">
+                    <GridView.ColumnHeaderContainerStyle>
+                        <Style TargetType="GridViewColumnHeader">
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="BorderBrush" Value="Transparent"/>
+                            <Setter Property="Foreground" Value="White"/>
+                        </Style>
+                    </GridView.ColumnHeaderContainerStyle>
+
+                    <GridViewColumn Header="№" Width="150">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <Image Source="{Binding ImagePresentcollections, Converter={StaticResource zxc}}"
-                     Width="150" Height="150" Stretch="Uniform"/>
+                                <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                    <TextBlock Text="{Binding IdPresentCollections}" 
+                                       HorizontalAlignment="Center" 
+                                       VerticalAlignment="Center"/>
+                                </Grid>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn Header="Название" Width="400" DisplayMemberBinding="{Binding NamePresentCollection}" />
-                    <GridViewColumn Header="Доступно" Width="300" DisplayMemberBinding="{Binding AvailableCount}" />
-                    <GridViewColumn Header="Всего" Width="300" DisplayMemberBinding="{Binding LimitPresentCollection}" />
-                    <GridViewColumn Header="Цена" Width="200" DisplayMemberBinding="{Binding PricePresentCollection}" />
+
+                    <GridViewColumn Header="Изображение" Width="400">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                    <Border CornerRadius="23"
+                                            Width="150"
+                                            Height="150"
+                                            HorizontalAlignment="Center" 
+                                            VerticalAlignment="Center">
+                                        <Border.Background>
+                                            <ImageBrush ImageSource="{Binding ImagePresentcollections, Converter={StaticResource zxc}}"/>
+                                        </Border.Background>
+                                    </Border>
+                                </Grid>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+
+                    <GridViewColumn Header="Название" Width="300">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                    <TextBlock Text="{Binding NamePresentCollection}" 
+                                       HorizontalAlignment="Center" 
+                                       VerticalAlignment="Center"/>
+                                </Grid>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+
+                    <GridViewColumn Header="Доступно" Width="200">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                    <TextBlock Text="{Binding AvailableCount}" 
+                                       HorizontalAlignment="Center" 
+                                       VerticalAlignment="Center"/>
+                                </Grid>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+
+                    <GridViewColumn Header="Всего" Width="200">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                    <TextBlock Text="{Binding LimitPresentCollection}" 
+                                       HorizontalAlignment="Center" 
+                                       VerticalAlignment="Center"/>
+                                </Grid>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+
+                    <GridViewColumn Header="Цена" Width="200">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                    <TextBlock Text="{Binding PricePresentCollection}" 
+                                       HorizontalAlignment="Center" 
+                                       VerticalAlignment="Center"/>
+                                </Grid>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
                 </GridView>
             </ListView.View>
         </ListView>
 
         <ListView x:Name="lotsListView" 
-          Grid.Row="2"
-          ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-          ScrollViewer.VerticalScrollBarVisibility="Auto"
-          ScrollViewer.CanContentScroll="True"
-          VirtualizingPanel.IsVirtualizing="True"
-          VirtualizingPanel.VirtualizationMode="Standard"
-          Foreground="White"
-          HorizontalAlignment="Stretch"
+                  Grid.Row="2"
+                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                  ScrollViewer.VerticalScrollBarVisibility="Auto"
+                  ScrollViewer.CanContentScroll="True"
+                  VirtualizingPanel.IsVirtualizing="True"
+                  VirtualizingPanel.VirtualizationMode="Standard"
+                  Foreground="White"
+                  HorizontalAlignment="Stretch"
                   Visibility="Collapsed">
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                    <Setter Property="VerticalContentAlignment" Value="Center"/>
+                    <Style.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="#333333"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </ListView.ItemContainerStyle>
+
             <ListView.View>
                 <GridView>
-                    <GridViewColumn Header="№" Width="100" DisplayMemberBinding="{Binding IdLot}"/>
-                    <GridViewColumn Header="Изображение" Width="400">
+                    <GridView.ColumnHeaderContainerStyle>
+                        <Style TargetType="GridViewColumnHeader">
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="BorderBrush" Value="Transparent"/>
+                            <Setter Property="Foreground" Value="White"/>
+                        </Style>
+                    </GridView.ColumnHeaderContainerStyle>
+
+                    <GridViewColumn Header="№" Width="100">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <Image Source="{Binding ImagePresent, Converter={StaticResource zxc}}"
-             Width="150" Height="150" Stretch="Uniform"/>
+                                <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                    <TextBlock Text="{Binding IdLot}" 
+                                       HorizontalAlignment="Center" 
+                                       VerticalAlignment="Center"/>
+                                </Grid>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn Header="id Продавца" Width="300" DisplayMemberBinding="{Binding IdSaler}" />
-                    <GridViewColumn Header="Ник Продавца" Width="300" DisplayMemberBinding="{Binding SalerNickname}" />
-                    <GridViewColumn Header="Цена" Width="300" DisplayMemberBinding="{Binding PriceLot}" />
+
+                    <GridViewColumn Header="Изображение" Width="400">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                    <Image Source="{Binding ImagePresent, Converter={StaticResource zxc}}"
+                                           Width="150" Height="150" Stretch="Uniform"
+                                           HorizontalAlignment="Center" 
+                                           VerticalAlignment="Center"/>
+                                </Grid>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+
+                    <GridViewColumn Header="id Продавца" Width="300">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                    <TextBlock Text="{Binding IdSaler}" 
+                                       HorizontalAlignment="Center" 
+                                       VerticalAlignment="Center"/>
+                                </Grid>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+
+                    <GridViewColumn Header="Ник Продавца" Width="300">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                    <TextBlock Text="{Binding SalerNickname}" 
+                                       HorizontalAlignment="Center" 
+                                       VerticalAlignment="Center"/>
+                                </Grid>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+
+                    <GridViewColumn Header="Цена" Width="300">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                    <TextBlock Text="{Binding PriceLot}" 
+                                       HorizontalAlignment="Center" 
+                                       VerticalAlignment="Center"/>
+                                </Grid>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                </GridView>
+            </ListView.View>
+        </ListView>
+
+        <ListView x:Name="transactionsListView" 
+                  Grid.Row="2"
+                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                  ScrollViewer.VerticalScrollBarVisibility="Auto"
+                  ScrollViewer.CanContentScroll="True"
+                  VirtualizingPanel.IsVirtualizing="True"
+                  VirtualizingPanel.VirtualizationMode="Standard"
+                  Foreground="White"
+                  HorizontalAlignment="Stretch"
+                  Visibility="Collapsed">
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                    <Setter Property="VerticalContentAlignment" Value="Center"/>
+                    <Style.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="#333333"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </ListView.ItemContainerStyle>
+
+            <ListView.View>
+                <GridView>
+                    <GridView.ColumnHeaderContainerStyle>
+                        <Style TargetType="GridViewColumnHeader">
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="BorderBrush" Value="Transparent"/>
+                            <Setter Property="Foreground" Value="White"/>
+                        </Style>
+                    </GridView.ColumnHeaderContainerStyle>
+
+                    <GridViewColumn Header="№" Width="100">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                    <TextBlock Text="{Binding IdTransaction}" 
+                                       HorizontalAlignment="Center" 
+                                       VerticalAlignment="Center"/>
+                                </Grid>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+
+                    <GridViewColumn Header="Изображение" Width="400">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                    <Image Source="{Binding ImagePresent, Converter={StaticResource zxc}}"
+                                   Width="150" Height="150" Stretch="Uniform"
+                                   HorizontalAlignment="Center" 
+                                   VerticalAlignment="Center"/>
+                                </Grid>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+
+                    <GridViewColumn Header="Продавец" Width="80">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                    <TextBlock Text="{Binding IdSaler}" 
+                                       HorizontalAlignment="Center" 
+                                       VerticalAlignment="Center"/>
+                                </Grid>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+
+                    <GridViewColumn Header="" Width="200">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                    <TextBlock Text="{Binding NameSaler}" 
+                                       HorizontalAlignment="Center" 
+                                       VerticalAlignment="Center"/>
+                                </Grid>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+
+                    <GridViewColumn Header="Покупатель" Width="80">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                    <TextBlock Text="{Binding IdBuyer}" 
+                                       HorizontalAlignment="Center" 
+                                       VerticalAlignment="Center"/>
+                                </Grid>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+
+                    <GridViewColumn Header="" Width="200">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                    <TextBlock Text="{Binding NameBuyer}" 
+                                       HorizontalAlignment="Center" 
+                                       VerticalAlignment="Center"/>
+                                </Grid>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+
+                    <GridViewColumn Header="Дата транзакции" Width="200">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                    <TextBlock Text="{Binding DateTransaction}" 
+                                       HorizontalAlignment="Center" 
+                                       VerticalAlignment="Center"/>
+                                </Grid>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+
+                    <GridViewColumn Header="Сумма транзакции" Width="130">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                    <TextBlock Text="{Binding SumTransaction}" 
+                                       HorizontalAlignment="Center" 
+                                       VerticalAlignment="Center"/>
+                                </Grid>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
                 </GridView>
             </ListView.View>
         </ListView>

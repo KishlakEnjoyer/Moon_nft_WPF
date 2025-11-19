@@ -78,9 +78,24 @@ namespace Moon_nft_application.Pages
             }
         }
 
-        private void Border_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private async void Border_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-
+            if (Application.Current.MainWindow is MainWindow main)
+            {
+                var modal = new EditProfileModal(main.currentUserId); 
+                modal.Owner = main;
+                modal.ShowDialog();
+                userInfo = await GetFullInfoOfUser(currUserId);
+                userInfo.PresentsUser = userInfo.PresentsUser.OrderByDescending(p => p.DateUpgradePresent).ToList();
+                if (userInfo != null)
+                {
+                    DataContext = userInfo;
+                }
+                if (userInfo.RoleUser == "Admin")
+                {
+                    adminBtn.Visibility = Visibility.Visible;
+                }
+            }
         }
 
         private void TextBlock_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)

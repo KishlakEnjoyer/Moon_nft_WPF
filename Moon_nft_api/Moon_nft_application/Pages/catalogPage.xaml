@@ -251,8 +251,8 @@ Padding="{TemplateBinding Padding}">
                 <ComboBoxItem Content="По умолчанию"/>
                 <ComboBoxItem Content="По цене ↓"/>
                 <ComboBoxItem Content="По цене ↑"/>
-                <ComboBoxItem Content="По номеру подарка ↓"/>
-                <ComboBoxItem Content="По номеру подарка ↑"/>
+                <ComboBoxItem Content="По дате улучшения ↓"/>
+                <ComboBoxItem Content="По дате улучшения ↑"/>
             </ComboBox>
         </Border>
 

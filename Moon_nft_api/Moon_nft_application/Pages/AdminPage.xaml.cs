@@ -39,6 +39,7 @@ namespace Moon_nft_application.Pages
             cbox.SelectedIndex = 1;
             collectionsListView.ItemsSource = await loadCollections();
             lotsListView.ItemsSource = await loadLots();
+            transactionsListView.ItemsSource = await loadTransactions();
         }
 
         private async void addCollectionBtn_Click(object sender, RoutedEventArgs e)
@@ -59,17 +60,20 @@ namespace Moon_nft_application.Pages
                 case 0:
                     addCollectionBtn.Visibility = Visibility.Collapsed;
                     collectionsListView.Visibility = Visibility.Collapsed;
-
+                    lotsListView.Visibility = Visibility.Collapsed;
+                    transactionsListView.Visibility = Visibility.Visible;
                     break;
                 case 1:
                     addCollectionBtn.Visibility = Visibility.Visible;
                     collectionsListView.Visibility = Visibility.Visible;
-
+                    lotsListView.Visibility = Visibility.Collapsed;
+                    transactionsListView.Visibility = Visibility.Collapsed;
                     break;
                 case 2:
                     addCollectionBtn.Visibility = Visibility.Collapsed;
                     collectionsListView.Visibility = Visibility.Collapsed;
                     lotsListView.Visibility = Visibility.Visible;
+                    transactionsListView.Visibility = Visibility.Collapsed;
                     break;
             }
         }
@@ -101,7 +105,27 @@ namespace Moon_nft_application.Pages
 
         public async Task<List<transactionDTO>> loadTransactions()
         {
-            return new List<transactionDTO>();
+            using var client = new HttpClient();
+            client.BaseAddress = new Uri("http://localhost:3000/");
+
+            try
+            {
+                var response = await client.GetAsync($"api/NFT/GetAllTransactionsAdmin");
+                response.EnsureSuccessStatusCode();
+
+                var json = await response.Content.ReadAsStringAsync();
+                var result = JsonSerializer.Deserialize<List<transactionDTO>>(
+                    json,
+                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+                );
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка загрузки данных: {ex.Message}");
+                return new List<transactionDTO>();
+            }
         }
 
         public async Task<List<LotDTO>> loadLots()

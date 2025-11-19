@@ -274,7 +274,6 @@ namespace Moon_nft_application.Elements
                     {
                         response = await client.PutAsync($"api/NFT/UpgradePresent?presentId={pres.IdPresent}", null);
                     }
-                    response.EnsureSuccessStatusCode();
 
                     var json = await response.Content.ReadAsStringAsync();
                     Close();

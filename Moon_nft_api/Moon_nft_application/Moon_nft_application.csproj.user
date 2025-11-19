@@ -16,6 +16,9 @@
     <Compile Update="Elements\buyNonUpPresentModal.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="Elements\EditProfileModal.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Elements\historyModal.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -43,6 +46,9 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Elements\buyNonUpPresentModal.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Elements\EditProfileModal.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Elements\historyModal.xaml">

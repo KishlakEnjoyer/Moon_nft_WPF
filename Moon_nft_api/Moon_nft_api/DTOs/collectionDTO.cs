@@ -8,7 +8,7 @@
         public int? LimitPresentCollection { get; set; }
         public int? AvailableCount { get; set; }
         public float? PricePresentCollection { get; set; }
-        public modelDTO[]? Models { get; set; }
+        public List<modelDTO>? Models { get; set; }
 
     }
 }

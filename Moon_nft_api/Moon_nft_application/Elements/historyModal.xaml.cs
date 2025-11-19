@@ -1,4 +1,5 @@
 ﻿using Moon_nft_api.DTOs;
+using Moon_nft_application.Scripts;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -137,6 +138,28 @@ namespace Moon_nft_application.Elements
                     salesListView.Visibility = Visibility.Visible;
 
                     break;
+            }
+        }
+
+        private async void Button_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button)
+            {
+                if (button.DataContext is transactionDTO transaction)
+                {
+                    try
+                    {
+                        await GenerateReceiptPdf.GeneratePDF(transaction);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Ошибка при создании чека: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Не удалось получить данные транзакции.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
             }
         }
     }

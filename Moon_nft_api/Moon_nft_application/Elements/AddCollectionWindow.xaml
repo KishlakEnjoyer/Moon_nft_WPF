@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Title="AddCollectionWindow" Height="550" Width="600"
         WindowStartupLocation="CenterScreen"
-        ResizeMode="NoResize" Background="#FF303030">
+        ResizeMode="NoResize" Background="#FF303030" WindowStyle="None">
     <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>

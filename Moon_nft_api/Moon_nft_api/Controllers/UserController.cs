@@ -119,6 +119,53 @@ namespace Moon_nft_api.Controllers
             }).ToListAsync();
         }
 
+        [HttpPost("UpdateProfile")]
+        public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileRequest request)
+        {
+            if (request.UserId <= 0)
+                return BadRequest(new { message = "Некорректный ID пользователя." });
+
+            if (string.IsNullOrWhiteSpace(request.CurrentPassword))
+                return BadRequest(new { message = "Введите текущий пароль." });
+
+            var user = await _context.Users.FindAsync(request.UserId);
+            if (user == null)
+                return NotFound(new { message = "Пользователь не найден." });
+
+            if (!BCrypt.Net.BCrypt.Verify(request.CurrentPassword, user.PasswordUser))
+                return Unauthorized(new { message = "Неверный текущий пароль." });
+
+            if (!string.IsNullOrWhiteSpace(request.NewNickname))
+            {
+                var existingUserWithNickname = await _context.Users
+                    .FirstOrDefaultAsync(u => u.NicknameUser == request.NewNickname && u.IdUser != request.UserId);
+                if (existingUserWithNickname != null)
+                    return BadRequest(new { message = "Никнейм уже занят." });
+
+                user.NicknameUser = request.NewNickname;
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.NewPassword))
+            {
+                if (request.NewPassword != request.ConfirmNewPassword)
+                    return BadRequest(new { message = "Новый пароль и подтверждение не совпадают." });
+
+                user.PasswordUser = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
+            }
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                return Ok(new { message = "Профиль успешно обновлён." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Ошибка при сохранении изменений." });
+            }
+        }
+
+
+
         [HttpGet("profile")]
         public async Task<ActionResult<ProfileResponseDto>> GetProfile([FromQuery] long tgId)
         {
